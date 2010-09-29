@@ -1,0 +1,45 @@
+﻿<html>
+#comment
+testcomment
+#end
+
+<b>${Program.Variable}</b>
+<b>${dict.test}</b>
+
+#foreach(${person} in ${people})
+#beforeall
+       <table>
+               <tr>
+				<th>Name</th>
+				<th>Age</th>
+               </tr>
+#before
+       <tr
+#odd
+       Style='color:gray'>
+#even
+       Style='color:white'>
+#each
+       <td>${person.Name}</td>
+       <td>${person.Age}</td>
+#after
+       </tr>
+
+#between
+       <tr><td colspan='2'>${person.Bio}</td></tr>
+
+#afterall
+       </table>
+
+#nodata
+       Sorry No Person Found
+#end
+
+#if(${order.Status} == "Undefined")
+  Sorry, but we don't know this order.
+#elseif(${order.Status} == "Created")
+  Your order is being processed. Hold on!
+#elseif(${order.Status} == "Dispatched")
+  Your order has been dispatched through UPS. Cross your fingers!
+#end
+</html>
