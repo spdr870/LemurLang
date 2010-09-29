@@ -5,6 +5,7 @@ using LemurLang.Interfaces;
 using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TestApplication
 {
@@ -14,7 +15,7 @@ namespace TestApplication
         public int Age { get; set; }
         public string Bio { get; set; }
     }
-    
+   
     class Program
     {
         public int Variable { get; set; }
@@ -23,15 +24,46 @@ namespace TestApplication
         {
             try
             {
+                ConditionHandler conditionHandler = new ConditionHandler();
+
+                Console.WriteLine(conditionHandler
+                    .Build("x > 1 && (y < 3 || (y > 8 && false)) && true ")
+                    .DisplayTree()
+                );
+
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
+
+                Console.WriteLine(conditionHandler
+                    .Build("x > 1 && y < 3 || y > 8 && false && true || (false && true)")
+                    .DisplayTree()
+                );
+
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
+
+                Console.WriteLine(conditionHandler
+                    .Build("true")
+                    .DisplayTree()
+                );
+
+                //will throw
+                //Console.WriteLine(conditionHandler
+                //    .Build("&& true")
+                //    .DisplayTree()
+                //);
+
                 ExpressionHandler handler = new ExpressionHandler();
-                
+
                 string testTemplate = File.ReadAllText("TestTemplate.txt");
                 IExpression testExpression = handler.BuildExpression(testTemplate);
 
                 Console.WriteLine("TREE -->");
                 Console.WriteLine();
                 Console.WriteLine();
-                
+
                 Console.WriteLine(testExpression.DisplayTree(0));
 
                 var context = new Dictionary<string, object>() {
@@ -50,7 +82,7 @@ namespace TestApplication
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine();
-                
+
                 Console.WriteLine("Evaluated:");
                 Console.WriteLine(testExpression.Evaluate(evaluationContext));
 

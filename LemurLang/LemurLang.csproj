@@ -40,6 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConditionHandler.cs" />
+    <Compile Include="Conditions\ConditionElement.cs" />
+    <Compile Include="Conditions\ConditionElementList.cs" />
+    <Compile Include="Conditions\OperatorConditionElement.cs" />
+    <Compile Include="Conditions\StringConditionElement.cs" />
     <Compile Include="EvaluationContext.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
     <Compile Include="Exceptions\EvaluationException.cs" />
