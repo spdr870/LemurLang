@@ -12,9 +12,18 @@ namespace LemurLang
             builder.Remove(0, builder.Length);
         }
 
-        private static void RemoveLastCharacter(this StringBuilder builder)
+        public static void Prepend(this StringBuilder builder, string value)
         {
-            builder.Remove(builder.Length - 1, builder.Length);
+            builder.Insert(0, value);
+        }
+        public static void Prepend(this StringBuilder builder, char value)
+        {
+            builder.Insert(0, value);
+        }
+
+        public static void RemoveLastCharacter(this StringBuilder builder)
+        {
+            builder.Remove(builder.Length - 1, 1);
         }
     }
 }

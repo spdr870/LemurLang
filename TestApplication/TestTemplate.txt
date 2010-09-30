@@ -3,7 +3,7 @@
 testcomment
 #end
 
-<b>${Program.Variable}</b>
+<b>${Program.Variable}</b><b>${Program.Variable}</b>
 <b>${dict.test}</b>
 <b>${people.Count}</b>
 

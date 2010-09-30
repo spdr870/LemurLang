@@ -12,6 +12,11 @@ namespace LemurLang.Expressions
         {
         }
 
+        public override string ToString()
+        {
+            return "COMMENT";
+        }
+
         public override string Evaluate(EvaluationContext evaluationContext)
         {
             return string.Empty;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LemurLang.Interfaces;
+using LemurLang.Conditions;
 
 namespace LemurLang.Expressions
 {
@@ -29,7 +30,7 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return string.Concat("if");
+            return "IF: " + this.State;
         }
 
         internal bool IsTrue
@@ -42,6 +43,10 @@ namespace LemurLang.Expressions
 
         public override string Evaluate(EvaluationContext evaluationContext)
         {
+            ConditionHandler conditionHandler = new ConditionHandler();
+            ConditionElementList conditions = conditionHandler.Build(this.State);
+            
+
             //StringBuilder builder = new StringBuilder();
             
             //foreach (IExpression expression in this.Children)

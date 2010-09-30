@@ -13,16 +13,15 @@ namespace LemurLang
     {
         public ExpressionHandler()
         {
-            this.InitializeExpressions();
-        }
-
-        protected void InitializeExpressions()
-        {
 
         }
 
         public IExpression BuildExpression(string template)
         {
+            List<string> foreachSubItems = new List<string>(new string[]{
+                "beforeall", "before", "odd", "even", "each", "after", "between", "afterall", "nodata"
+            });
+            
             List<string> items = new List<string>(new string[]{
                 "comment",
                 "foreach",
@@ -30,7 +29,7 @@ namespace LemurLang
                 "elseif",
                 "else",
                 "end"
-            });
+            }.Concat(foreachSubItems));
             
             RootExpression root = new RootExpression();
             IExpression currentNode = root;
@@ -43,16 +42,12 @@ namespace LemurLang
 
                 if (c == '#')
                 {
-                    if (builder.Length > 0)
-                    {
-                        CreateAndAddTextExpression(currentNode, builder, index);
-                    }
-                    
                     StringBuilder hashbuildUp = new StringBuilder();
+                    char? nextChar = null;
 
                     while (index + 1 < template.Length)
                     {
-                        char nextChar = template[ index + 1];
+                        nextChar = template[ index + 1];
 
                         bool inFirstRange = nextChar >= 'A' && nextChar <= 'Z';
                         bool inSecondRange = nextChar >= 'a' && nextChar <= 'z';
@@ -68,8 +63,15 @@ namespace LemurLang
                     }
 
                     string element = hashbuildUp.ToString();
+
+                    bool elementHandled = true;
                     if (hashbuildUp.Length > 0 && items.Contains(element))
                     {
+                        if (builder.Length > 0)
+                        {
+                            CreateAndAddTextExpression(currentNode, builder, index);
+                        }
+
                         if (element == "comment")
                         {
                             IExpression expression = new CommentExpression() { Parent = currentNode };
@@ -81,22 +83,76 @@ namespace LemurLang
                             IExpression expression = new ForeachExpression() { Parent = currentNode };
                             currentNode.Children.Add(expression);
                             currentNode = expression;
+
+                            if (nextChar != '(')
+                                throw new Exception();
+                            
+                            StringBuilder consumer = new StringBuilder();
+                            index++;
+                            while (nextChar != ')')
+                            {
+                                nextChar = template[index + 1];
+                                if (nextChar == '\r' || nextChar == '\n')
+                                    throw new Exception();
+
+                                consumer.Append(nextChar);
+                                index++;
+                            }
+                            consumer.RemoveLastCharacter();
+                            expression.State = consumer.ToString();
                         }
                         else if (element == "if")
                         {
                             IExpression expression = new IfExpression() { Parent = currentNode };
                             currentNode.Children.Add(expression);
                             currentNode = expression;
+
+                            StringBuilder consumer = new StringBuilder();
+                            consumer.Append(nextChar);
+                            int stackCount = 1;
+                            index++;
+                            while (stackCount > 0)
+                            {
+                                nextChar = template[index + 1];
+                                if (nextChar == '(')
+                                    stackCount--;
+                                else if (nextChar == ')')
+                                    stackCount--;
+                                else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
+                                    throw new Exception();
+
+                                consumer.Append(nextChar);
+                                index++;
+                            }
+                            expression.State = consumer.ToString();
                         }
                         else if (element == "elseif")
                         {
                             IExpression expression = new ElseIfExpression() { Parent = currentNode };
                             currentNode.Children.Add(expression);
 
+                            StringBuilder consumer = new StringBuilder();
+                            consumer.Append(nextChar);
+                            int stackCount = 1;
+                            index++;
+                            while (stackCount > 0)
+                            {
+                                nextChar = template[index + 1];
+                                if (nextChar == '(')
+                                    stackCount--;
+                                else if (nextChar == ')')
+                                    stackCount--;
+                                else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
+                                    throw new Exception();
+
+                                consumer.Append(nextChar);
+                                index++;
+                            }
+                            expression.State = consumer.ToString();
                         }
                         else if (element == "else")
                         {
-                            IExpression expression = new ElseIfExpression() { Parent = currentNode };
+                            IExpression expression = new ElseExpression() { Parent = currentNode };
                             currentNode.Children.Add(expression);
 
                         }
@@ -104,18 +160,78 @@ namespace LemurLang
                         {
                             currentNode = currentNode.Parent;
                         }
+                        else if (foreachSubItems.Contains(element))
+                        {
+                            IExpression expression = new ForeachSubExpression() { Parent = currentNode, UsedTag = element };
+                            currentNode.Children.Add(expression);
+                        }
+                        else
+                        {
+                            elementHandled = false;
+                        }
                     }
                     else
                     {
+                        elementHandled = false;
+                    }
+
+                    if (!elementHandled)
+                    {
+                        if (nextChar != null)
+                            builder.Append(nextChar.Value);
                         builder.Append(c);
                         builder.Append(hashbuildUp.ToString());
+                        if (builder.Length > 0)
+                        {
+                            CreateAndAddTextExpression(currentNode, builder, index);
+                        }
                     }
                     
                     hashbuildUp.Clear();
                 }
                 else if (c == '$')
                 {
-                    builder.Append(c);
+                    if (builder.Length > 0)
+                    {
+                        CreateAndAddTextExpression(currentNode, builder, index);
+                    }
+                    
+                    if (index + 1 < template.Length)
+                    {
+                        char nextChar = template[index + 1];
+                        if (nextChar == '{')
+                        {
+                            StringBuilder consumer = new StringBuilder();
+                            index++;
+                            while (nextChar != '}')
+                            {
+                                nextChar = template[index + 1];
+                                if (nextChar == '\r' || nextChar == '\n')
+                                    throw new Exception();
+
+                                consumer.Append(nextChar);
+                                index++;
+                            }
+                            consumer.RemoveLastCharacter();
+                            PrintExpression print = new PrintExpression()
+                            {
+                                Parent = currentNode,
+                                IndexInTemplate = index,
+                                State = consumer.ToString()
+                            };
+
+                            currentNode.Children.Add(print);
+                        }
+                        else
+                        {
+                            builder.Append(c);
+                            builder.Append(nextChar);
+                        }
+                    }
+                    else
+                    {
+                        builder.Append(c);
+                    }
                 }
                 else
                 {
@@ -125,7 +241,7 @@ namespace LemurLang
 
             if (builder.Length > 0)
             {
-                CreateAndAddTextExpression(currentNode, builder, 0);//todo
+                CreateAndAddTextExpression(currentNode, builder, 0);//todo index
             }
 
             if (currentNode != root)

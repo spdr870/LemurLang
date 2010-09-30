@@ -17,12 +17,21 @@ namespace LemurLang.Expressions
         {
         }
 
+        public override string ToString()
+        {
+            return "FOREACH: " + this.State;
+        }
+
         public override string Evaluate(EvaluationContext evaluationContext)
         {
             StringBuilder builder = new StringBuilder();
 
-            string varToIntroduce = "";// this.Match.Groups["var"].Value;
-            string sourceName = "";//this.Match.Groups["source"].Value;
+            Match match = Regex.Match(this.State, @"\$\{(?'var'[a-zA-Z0-9.]+)\}(?:\s+)in(?:\s+)\$\{(?'source'[a-zA-Z0-9.]+)\}");
+            if (!match.Success)
+                throw new Exception();
+
+            string varToIntroduce = match.Groups["var"].Value;
+            string sourceName = match.Groups["source"].Value;
 
             object source = evaluationContext.GetValue(sourceName);
 

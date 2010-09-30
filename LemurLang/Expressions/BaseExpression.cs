@@ -32,6 +32,8 @@ namespace LemurLang.Expressions
             return this.UsedTag;
         }
 
+        public string State { get; set; }
+
         public virtual string DisplayTree(int currentLevel)
         {
             StringBuilder builder = new StringBuilder();

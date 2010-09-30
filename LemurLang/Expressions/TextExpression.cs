@@ -17,11 +17,11 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return string.Concat(
-                "TEXT: ",
-                Regex.Replace(this.Text.Substring(0, Math.Min(this.Text.Length, 20)), "\r\n|\r|\n", string.Empty),
-                "..."
-            );
+            return "TEXT";
+            //return string.Concat(
+            //    "TEXT: ",
+            //    this.Text
+            //);
         }
 
         public override string Evaluate(EvaluationContext evaluationContext)

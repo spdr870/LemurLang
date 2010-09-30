@@ -5,16 +5,11 @@ using System.Text;
 
 namespace LemurLang.Expressions
 {
-    public class ElseIfExpression : IfExpression
+    public class ElseExpression : ElseIfExpression
     {
-        public ElseIfExpression()
-        {
-            this.NeedsToBeEnded = false;
-        }
-
         public override string ToString()
         {
-            return "ELSEIF: " + this.State;
+            return "ELSE:";
         }
     }
 }
