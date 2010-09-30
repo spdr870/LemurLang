@@ -24,30 +24,30 @@ namespace TestApplication
         {
             try
             {
-                ConditionHandler conditionHandler = new ConditionHandler();
+                //ConditionHandler conditionHandler = new ConditionHandler();
 
-                Console.WriteLine(conditionHandler
-                    .Build("x > 1 && (y < 3 || (y > 8 && false)) && true ")
-                    .DisplayTree()
-                );
+                //Console.WriteLine(conditionHandler
+                //    .Build("x > 1 && (y < 3 || (y > 8 && false)) && true ")
+                //    .DisplayTree()
+                //);
 
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
 
-                Console.WriteLine(conditionHandler
-                    .Build("x > 1 && y < 3 || y > 8 && false && true || (false && true)")
-                    .DisplayTree()
-                );
+                //Console.WriteLine(conditionHandler
+                //    .Build("x > 1 && y < 3 || y > 8 && false && true || (false && true)")
+                //    .DisplayTree()
+                //);
 
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
 
-                Console.WriteLine(conditionHandler
-                    .Build("true")
-                    .DisplayTree()
-                );
+                //Console.WriteLine(conditionHandler
+                //    .Build("true")
+                //    .DisplayTree()
+                //);
 
                 //will throw
                 //Console.WriteLine(conditionHandler
@@ -66,25 +66,25 @@ namespace TestApplication
 
                 Console.WriteLine(testExpression.DisplayTree(0));
 
-                var context = new Dictionary<string, object>() {
-                    {"Program", new Program(){ Variable = 3 }},
-                    {"people", new List<Person>{
-                        new Person(){ Age=20, Bio="Woei", Name ="Test1"},
-                        new Person(){ Age=25, Bio="Waaaaaaa", Name ="Test2"},
-                        new Person(){ Age=30, Bio="Blieeee", Name ="Test3"}
-                    }},
-                    {"dict", new Dictionary<string, object>(){
-                        {"test","test"}
-                    }}
-                };
-                EvaluationContext evaluationContext = new EvaluationContext(context, null);
+                //var context = new Dictionary<string, object>() {
+                //    {"Program", new Program(){ Variable = 6 }},
+                //    {"people", new List<Person>{
+                //        new Person(){ Age=20, Bio="Woei", Name ="Test1"},
+                //        new Person(){ Age=25, Bio="Waaaaaaa", Name ="Test2"},
+                //        new Person(){ Age=30, Bio="Blieeee", Name ="Test3"}
+                //    }},
+                //    {"dict", new Dictionary<string, object>(){
+                //        {"test","test"}
+                //    }}
+                //};
+                //EvaluationContext evaluationContext = new EvaluationContext(context, null);
 
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
 
-                Console.WriteLine("Evaluated:");
-                Console.WriteLine(testExpression.Evaluate(evaluationContext));
+                //Console.WriteLine("Evaluated:");
+                //Console.WriteLine(testExpression.Evaluate(evaluationContext));
 
                 Console.ReadLine();
             }

@@ -14,7 +14,7 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return string.Concat("elseif: ", this.Match.Groups["condition"].Value);
+            return string.Concat("elseif");
         }
     }
 }

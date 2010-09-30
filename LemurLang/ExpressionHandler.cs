@@ -11,145 +11,121 @@ namespace LemurLang
 {
     public class ExpressionHandler
     {
-        private Dictionary<string, Type> _expressionsbyName;
-        private List<string> _expressionRegularExpressions;
-
         public ExpressionHandler()
         {
             this.InitializeExpressions();
         }
 
-        public void RegisterExpression<T>(string name, string regex) where T : IExpression, new()
-        {
-            _expressionsbyName[name] = typeof(T);
-            _expressionRegularExpressions.Add(regex);
-        }
-
         protected void InitializeExpressions()
         {
-            _expressionsbyName = new Dictionary<string, Type>();
-            _expressionRegularExpressions = new List<string>();
 
-            //#foreach(${person} in ${people})
-            this.RegisterExpression<ForeachExpression>("foreach", @"(#(?'tag'foreach)\((?:\s*)\$\{(?'var'[a-zA-Z0-9.]+)\}(?:\s+)in(?:\s+)\$\{(?'source'[a-zA-Z0-9.]+)\}(?:\s*)\))");
-            
-            this.RegisterExpression<ForeachSubExpression>("beforeall", @"(#(?'tag'beforeall))");
-            this.RegisterExpression<ForeachSubExpression>("before", @"(#(?'tag'before))");
-            this.RegisterExpression<ForeachSubExpression>("odd", @"(#(?'tag'odd))");
-            this.RegisterExpression<ForeachSubExpression>("even", @"(#(?'tag'even))");
-            this.RegisterExpression<ForeachSubExpression>("each", @"(#(?'tag'each))");
-            this.RegisterExpression<ForeachSubExpression>("afterall", @"(#(?'tag'afterall))");
-            this.RegisterExpression<ForeachSubExpression>("after", @"(#(?'tag'after))");
-            this.RegisterExpression<ForeachSubExpression>("between", @"(#(?'tag'between))");
-            this.RegisterExpression<ForeachSubExpression>("nodata", @"(#(?'tag'nodata))");
-            
-            this.RegisterExpression<CommentExpression>("comment", @"(#(?'tag'comment))");
-            
-            this.RegisterExpression<PrintExpression>("$", @"((?'tag'\$)\{(?'print'[a-zA-Z0-9.]+)\})");
-
-            this.RegisterExpression<ElseIfExpression>("elseif", @"(#(?'tag'elseif)(?'condition'(\(.+)))");
-            this.RegisterExpression<IfExpression>("if", @"(#(?'tag'if)(?'condition'(\(.+)))");
         }
 
         public IExpression BuildExpression(string template)
         {
+            List<string> items = new List<string>(new string[]{
+                "comment",
+                "foreach",
+                "if",
+                "elseif",
+                "else",
+                "end"
+            });
+            
             RootExpression root = new RootExpression();
             IExpression currentNode = root;
 
-            string regex = string.Concat(
-                string.Join(
-                    "|",
-                    _expressionRegularExpressions
-                        //.Select(x => string.Concat(@"(([\t\r\n]*)" + x, ")"))
-                        .ToArray()
-                ),
-                "|(#(?'tag'end))"
-            );
+            StringBuilder builder = new StringBuilder();
 
-            Match match = Regex.Match(template, regex);
-
-            int lastTextPosition = 0;
-
-            while (match.Success)
+            for(int index = 0; index < template.Length; index++)
             {
-                string currentText = template.Substring(lastTextPosition, match.Index - lastTextPosition);
+                char c = template[index];
 
-                if (!string.IsNullOrEmpty(currentText))
+                if (c == '#')
                 {
-                    TextExpression textExpression = new TextExpression();
-                    textExpression.Text = currentText;
-                    textExpression.UsedTag = null;
-                    textExpression.Match = match;
-                    textExpression.Parent = currentNode;
-                    textExpression.IndexInTemplate = match.Index;
-                    currentNode.Children.Add(textExpression);
-                }
-
-                bool endTagFound = match.Value == "#end";
-                string expressionTag = match.Groups["tag"].Value;
-
-                // non-end expression tag found
-                if (!endTagFound)
-                {
-                    Type typeToFind = null;
-                    if (_expressionsbyName.TryGetValue(expressionTag, out typeToFind)) // if expression exists
+                    if (builder.Length > 0)
                     {
-                        IExpression builtExpression = Activator.CreateInstance(typeToFind) as IExpression;
-                        builtExpression.UsedTag = expressionTag;
-                        builtExpression.Match = match;
-                        builtExpression.Parent = currentNode;
-                        builtExpression.IndexInTemplate = match.Index;
+                        CreateAndAddTextExpression(currentNode, builder, index);
+                    }
+                    
+                    StringBuilder hashbuildUp = new StringBuilder();
 
-                        currentNode.Children.Add(builtExpression);
-                        currentNode = builtExpression;
+                    while (index + 1 < template.Length)
+                    {
+                        char nextChar = template[ index + 1];
 
-                        if (!builtExpression.NeedsToBeEnded)
+                        bool inFirstRange = nextChar >= 'A' && nextChar <= 'Z';
+                        bool inSecondRange = nextChar >= 'a' && nextChar <= 'z';
+                        if (inFirstRange || inSecondRange)
+                        {
+                            index++;
+                            hashbuildUp.Append(nextChar);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    string element = hashbuildUp.ToString();
+                    if (hashbuildUp.Length > 0 && items.Contains(element))
+                    {
+                        if (element == "comment")
+                        {
+                            IExpression expression = new CommentExpression() { Parent = currentNode };
+                            currentNode.Children.Add(expression);
+                            currentNode = expression;
+                        }
+                        else if (element == "foreach")
+                        {
+                            IExpression expression = new ForeachExpression() { Parent = currentNode };
+                            currentNode.Children.Add(expression);
+                            currentNode = expression;
+                        }
+                        else if (element == "if")
+                        {
+                            IExpression expression = new IfExpression() { Parent = currentNode };
+                            currentNode.Children.Add(expression);
+                            currentNode = expression;
+                        }
+                        else if (element == "elseif")
+                        {
+                            IExpression expression = new ElseIfExpression() { Parent = currentNode };
+                            currentNode.Children.Add(expression);
+
+                        }
+                        else if (element == "else")
+                        {
+                            IExpression expression = new ElseIfExpression() { Parent = currentNode };
+                            currentNode.Children.Add(expression);
+
+                        }
+                        else if (element == "end")
                         {
                             currentNode = currentNode.Parent;
                         }
                     }
                     else
                     {
-                        TextExpression textExpression = new TextExpression();
-                        textExpression.Text = match.Value;
-                        textExpression.UsedTag = null;
-                        textExpression.Match = match;
-                        textExpression.Parent = currentNode;
-                        textExpression.IndexInTemplate = match.Index;
-                        currentNode.Children.Add(textExpression);
+                        builder.Append(c);
+                        builder.Append(hashbuildUp.ToString());
                     }
+                    
+                    hashbuildUp.Clear();
                 }
-                else // end tag
+                else if (c == '$')
                 {
-                    if (!currentNode.NeedsToBeEnded || currentNode.Parent == null)
-                    {
-                        int lineNumber1 = GetLineNumberFromIndex(template, currentNode.IndexInTemplate);
-                        int lineNumber2 = GetLineNumberFromIndex(template, match.Index);
-                        throw new ParseException(
-                            string.Format(
-                                "Cannot use end tag here. Hint -->\r\nLine numbers: {0}, {1}\r\nCurrent Node: {2}",
-                                lineNumber1,
-                                lineNumber2,
-                                currentNode.UsedTag
-                            )
-                        );
-                    }
-                    else
-                    {
-                        currentNode = currentNode.Parent;
-                    }
+                    builder.Append(c);
                 }
-
-                lastTextPosition = match.Index + match.Length;
-                match = match.NextMatch();
+                else
+                {
+                    builder.Append(c);
+                }
             }
 
-            string endText = template.Substring(lastTextPosition);
-            if (!string.IsNullOrEmpty(endText))
+            if (builder.Length > 0)
             {
-                TextExpression textExpr = new TextExpression();
-                textExpr.Text = endText;
-                currentNode.Children.Add(textExpr);
+                CreateAndAddTextExpression(currentNode, builder, 0);//todo
             }
 
             if (currentNode != root)
@@ -164,6 +140,18 @@ namespace LemurLang
             }
 
             return root;
+        }
+
+        private static void CreateAndAddTextExpression(IExpression currentNode, StringBuilder builder, int index)
+        {
+            TextExpression text = new TextExpression()
+            {
+                Text = builder.ToString(),
+                Parent = currentNode,
+                IndexInTemplate = index
+            };
+            currentNode.Children.Add(text);
+            builder.Clear();
         }
 
         internal int GetLineNumberFromIndex(string content, int index)

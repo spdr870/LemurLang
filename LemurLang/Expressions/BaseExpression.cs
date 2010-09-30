@@ -21,8 +21,6 @@ namespace LemurLang.Expressions
 
         public string UsedTag { get; set; }
 
-        public Match Match { get; set; }
-
         public IExpression Parent { get; set; }
         
         public int IndexInTemplate { get; set; }

@@ -29,7 +29,7 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return string.Concat("if: ", this.Match.Groups["condition"].Value);
+            return string.Concat("if");
         }
 
         internal bool IsTrue
@@ -54,7 +54,7 @@ namespace LemurLang.Expressions
             //    builder.Append(expression.DisplayTree(currentLevel + ((expression is ElseIfExpression) ? 0 : 1)));
             //}
             
-            return string.Concat(this.Match, " - ", this.Match);
+            return string.Concat("if");
         }
     }
 }

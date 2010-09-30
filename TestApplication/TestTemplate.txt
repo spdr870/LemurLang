@@ -5,6 +5,7 @@ testcomment
 
 <b>${Program.Variable}</b>
 <b>${dict.test}</b>
+<b>${people.Count}</b>
 
 #foreach(${person} in ${people})
 #beforeall
@@ -35,11 +36,11 @@ testcomment
        Sorry No Person Found
 #end
 
-#if(${order.Status} == "Undefined")
-  Sorry, but we don't know this order.
-#elseif(${order.Status} == "Created")
-  Your order is being processed. Hold on!
-#elseif(${order.Status} == "Dispatched")
-  Your order has been dispatched through UPS. Cross your fingers!
+#if(${Program.Variable} == 5)
+  5
+#elseif(${Program.Variable} == 6)
+  6
+#else
+  other
 #end
 </html>

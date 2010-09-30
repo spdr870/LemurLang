@@ -10,7 +10,6 @@ namespace LemurLang.Interfaces
     {
         List<IExpression> Children { get; }
         string UsedTag { get; set; }
-        Match Match { get; set; }
         IExpression Parent { get; set; }
         int IndexInTemplate { get; set; }
         bool NeedsToBeEnded { get; set; }

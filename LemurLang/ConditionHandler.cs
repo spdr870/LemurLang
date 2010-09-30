@@ -9,16 +9,6 @@ namespace LemurLang
 {
     public class ConditionHandler
     {
-        private void Clear(StringBuilder builder)
-        {
-            builder.Remove(0, builder.Length);
-        }
-
-        private void RemoveLastCharacter(StringBuilder builder)
-        {
-            builder.Remove(builder.Length-1, builder.Length);
-        }
-
         public ConditionElementList Build(string input)
         {
             string workstring = input;
@@ -125,7 +115,7 @@ namespace LemurLang
             {
                 //add new string element to previous list
                 currentElementList.Children.Add(new StringConditionElement(currentElementList, text));
-                Clear(currentLiteral);
+                currentLiteral.Clear();
             }
         }
     }

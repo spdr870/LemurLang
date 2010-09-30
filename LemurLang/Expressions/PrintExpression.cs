@@ -15,12 +15,15 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return "PRINT: " + this.Match.Groups["print"].Value;
+            return "PRINT";
         }
 
         public override string Evaluate(EvaluationContext evaluationContext)
         {
-            return evaluationContext.GetValue(this.Match.Groups["print"].Value).ToString();
+            string reference = "";//this.Match.Groups["print"].Value;
+            object evaluationResult = evaluationContext.GetValue(reference);
+
+            return evaluationResult == null ? string.Empty : evaluationResult.ToString();
         }
     }
 }

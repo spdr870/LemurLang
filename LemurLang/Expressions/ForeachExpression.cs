@@ -20,9 +20,9 @@ namespace LemurLang.Expressions
         public override string Evaluate(EvaluationContext evaluationContext)
         {
             StringBuilder builder = new StringBuilder();
-            
-            string varToIntroduce = this.Match.Groups["var"].Value;
-            string sourceName = this.Match.Groups["source"].Value;
+
+            string varToIntroduce = "";// this.Match.Groups["var"].Value;
+            string sourceName = "";//this.Match.Groups["source"].Value;
 
             object source = evaluationContext.GetValue(sourceName);
 
