@@ -17,5 +17,7 @@ namespace LemurLang.Conditions
         public override abstract string ToString();
 
         public abstract string DisplayTree(int currentLevel);
+
+        public abstract bool Evaluate(Func<string, object> contextGetter);
     }
 }

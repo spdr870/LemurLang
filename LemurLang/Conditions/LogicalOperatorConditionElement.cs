@@ -5,9 +5,9 @@ using System.Text;
 
 namespace LemurLang.Conditions
 {
-    public class OperatorConditionElement : ConditionElement
+    public class LogicalOperatorConditionElement : ConditionElement
     {
-        public OperatorConditionElement(ConditionElement parent, string operatorText)
+        public LogicalOperatorConditionElement(ConditionElement parent, string operatorText)
             : base(parent)
         {
             this.Operator = operatorText;
@@ -30,6 +30,11 @@ namespace LemurLang.Conditions
             }
 
             return builder.ToString();
+        }
+
+        public override bool Evaluate(Func<string, object> contextGetter)
+        {
+            throw new InvalidOperationException();
         }
     }
 }

@@ -24,10 +24,22 @@ namespace TestApplication
         {
             try
             {
-                //ConditionHandler conditionHandler = new ConditionHandler();
+                ConditionHandler conditionHandler = new ConditionHandler();
 
+                Console.WriteLine(conditionHandler.Build("true").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("false").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("false || true").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("true || false").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("false && true").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("true && false").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("true && true").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("false && false").Evaluate(x => x));
+                Console.WriteLine(conditionHandler.Build("false && false || true").Evaluate(x => x));
+
+                //return;
+                
                 //Console.WriteLine(conditionHandler
-                //    .Build("x > 1 && (y < 3 || (y > 8 && false)) && true ")
+                //    .Build("x>1 && (y < 3 || (y > 8 && false)) && true ")
                 //    .DisplayTree()
                 //);
 
@@ -37,6 +49,15 @@ namespace TestApplication
 
                 //Console.WriteLine(conditionHandler
                 //    .Build("x > 1 && y < 3 || y > 8 && false && true || (false && true)")
+                //    .DisplayTree()
+                //);
+
+                //Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine();
+
+                //Console.WriteLine(conditionHandler
+                //    .Build("(x > 1 && y < 3) || (y > 8 && false && true) || (false && true)")
                 //    .DisplayTree()
                 //);
 

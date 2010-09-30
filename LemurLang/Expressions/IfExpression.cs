@@ -33,33 +33,40 @@ namespace LemurLang.Expressions
             return "IF: " + this.State;
         }
 
-        internal bool IsTrue
+        internal bool GetConditionEvaluation(EvaluationContext evaluationContext)
         {
-            get
-            {
-                return true;
-            }
+            ConditionHandler conditionHandler = new ConditionHandler();
+            ConditionElementList conditions = conditionHandler.Build(this.State);
+
+            bool result = conditions.Evaluate(evaluationContext.GetValue);
+            return result;
         }
 
         public override string Evaluate(EvaluationContext evaluationContext)
         {
-            ConditionHandler conditionHandler = new ConditionHandler();
-            ConditionElementList conditions = conditionHandler.Build(this.State);
-            
+            bool result = GetConditionEvaluation(evaluationContext);
 
-            //StringBuilder builder = new StringBuilder();
-            
-            //foreach (IExpression expression in this.Children)
-            //{
-            //    if(!this.IsTrue)
-            //    {
-            //        ElseIfExpression ifExpression = expression as ElseIfExpression;
-            //        if(
-                
-            //    builder.Append(expression.DisplayTree(currentLevel + ((expression is ElseIfExpression) ? 0 : 1)));
-            //}
-            
-            return string.Concat("if");
+            StringBuilder builder = new StringBuilder();
+
+            List<IExpression> childrenToExecute = new List<IExpression>();
+
+            foreach (IExpression expression in this.Children)
+            {
+                if (result && !(expression is ElseIfExpression))
+                {
+                    builder.Append(expression.Evaluate(evaluationContext));
+                }
+                else if (result && expression is ElseIfExpression)
+                {
+                    break;
+                }
+                else if (!result && expression is ElseIfExpression)
+                {
+                    result = ((ElseIfExpression)expression).GetConditionEvaluation(evaluationContext);
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }

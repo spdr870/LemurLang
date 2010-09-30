@@ -30,5 +30,15 @@ namespace LemurLang.Conditions
             }
             return builder.ToString();
         }
+
+        public override bool Evaluate(Func<string, object> contextGetter)
+        {
+            if (this.Text.Equals("true", StringComparison.OrdinalIgnoreCase))
+                return true;
+            else if (this.Text.Equals("false", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return Convert.ToBoolean(contextGetter(this.Text));
+        }
     }
 }

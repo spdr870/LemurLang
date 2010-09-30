@@ -36,11 +36,11 @@ testcomment
        Sorry No Person Found
 #end
 
-#if(${Program.Variable} == 5)
+#if(${Program.Variable} != ${Program.Variable})
   5
-#elseif(${Program.Variable} == 6)
+#elseif(${Program.Variable} == {people.Count})
   6
 #else
-  other
+  ${Program.Variable}
 #end
 </html>

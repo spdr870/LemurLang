@@ -40,5 +40,43 @@ namespace LemurLang.Conditions
 
             return builder.ToString();
         }
+
+        public override bool Evaluate(Func<string, object> contextGetter)
+        {
+            bool result = false;
+
+            bool first = true;
+            LogicalOperatorConditionElement lastLogical = null;
+            foreach (ConditionElement element in this.Children)
+            {
+                if (first)
+                {
+                    result = element.Evaluate(contextGetter);
+                    first = false;
+                }
+                else
+                {
+                    LogicalOperatorConditionElement logical = element as LogicalOperatorConditionElement;
+                    if (logical == null)
+                    {
+                        bool currentResult = element.Evaluate(contextGetter);
+                        if (lastLogical.Operator == "&&")
+                        {
+                            result = result && currentResult;
+                        }
+                        else if (lastLogical.Operator == "||")
+                        {
+                            result = result || currentResult;
+                        }
+                    }
+                    else
+                    {
+                        lastLogical = logical;
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 }

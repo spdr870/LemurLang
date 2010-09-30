@@ -18,10 +18,8 @@ namespace LemurLang
 
             StringBuilder currentLiteral = new StringBuilder();
 
-            if (!Regex.IsMatch(workstring, @"^\("))
-            {
-                workstring = string.Concat("(", workstring, ")");
-            }
+            //make safe...
+            workstring = string.Concat("(", workstring, ")");
 
             bool lastCharacterWasAmpersand = false;
             bool lastCharacterWasPipe = false;
@@ -51,7 +49,7 @@ namespace LemurLang
                 {
                     AddPossibleText(currentElementList, currentLiteral);
 
-                    if (currentElementList.Children.Last() is OperatorConditionElement)
+                    if (currentElementList.Children.Last() is LogicalOperatorConditionElement)
                     {
                         throw new Exception();//todo
                     }
@@ -65,12 +63,12 @@ namespace LemurLang
                     {
                         AddPossibleText(currentElementList, currentLiteral);
 
-                        if (currentElementList.Children.Count == 0 || currentElementList.Children.Last() is OperatorConditionElement)
+                        if (currentElementList.Children.Count == 0 || currentElementList.Children.Last() is LogicalOperatorConditionElement)
                         {
                             throw new Exception();//todo
                         }
                         
-                        OperatorConditionElement operatorConditionElement = new OperatorConditionElement(currentElementList.Parent, "&&");
+                        LogicalOperatorConditionElement operatorConditionElement = new LogicalOperatorConditionElement(currentElementList.Parent, "&&");
                         currentElementList.Children.Add(operatorConditionElement);
                         lastCharacterWasAmpersand = false;
                     }
@@ -85,12 +83,12 @@ namespace LemurLang
                     {
                         AddPossibleText(currentElementList, currentLiteral);
 
-                        if (currentElementList.Children.Count == 0 || currentElementList.Children.Last() is OperatorConditionElement)
+                        if (currentElementList.Children.Count == 0 || currentElementList.Children.Last() is LogicalOperatorConditionElement)
                         {
                             throw new Exception();//todo
                         }
 
-                        OperatorConditionElement operatorConditionElement = new OperatorConditionElement(currentElementList.Parent, "||");
+                        LogicalOperatorConditionElement operatorConditionElement = new LogicalOperatorConditionElement(currentElementList.Parent, "||");
                         currentElementList.Children.Add(operatorConditionElement);
                         lastCharacterWasPipe = false;
                     }
@@ -113,8 +111,22 @@ namespace LemurLang
             string text = currentLiteral.ToString().Trim();
             if (text.Length > 0) //previous text was present
             {
-                //add new string element to previous list
-                currentElementList.Children.Add(new StringConditionElement(currentElementList, text));
+                Match match = Regex.Match(text, @"^(?'lhs'\S+?)(?:\s*)(?'operator'\>=|\<=|\>|\<|==|!=)(?:\s*)(?'rhs'.+)$");
+                if (match.Success)
+                {
+                    //add new string element to previous list
+                    currentElementList.Children.Add(new ComparisonConditionElement(
+                        currentElementList,
+                        match.Groups["lhs"].Value,
+                        match.Groups["operator"].Value,
+                        match.Groups["rhs"].Value
+                    ));
+                }
+                else
+                {
+                    //add new string element to previous list
+                    currentElementList.Children.Add(new StringConditionElement(currentElementList, text));
+                }
                 currentLiteral.Clear();
             }
         }
