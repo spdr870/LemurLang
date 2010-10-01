@@ -5,6 +5,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using LemurLang.Exceptions;
 using System.Text.RegularExpressions;
+using LemurLang.Conditions;
+using LemurLang.Test.Tools;
+using System.Globalization;
 
 namespace LemurLang.Test
 {
@@ -151,6 +154,167 @@ namespace LemurLang.Test
             ConditionEngine conditionHandler = new ConditionEngine();
 
             conditionHandler.Build("(true |& |false)").DisplayTree(0);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementEqualsTrue()
+        {
+            bool result = new ComparisonConditionElement(null, "a", "==", "a").Evaluate(null);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementEqualsFalse()
+        {
+            bool result = new ComparisonConditionElement(null, "a", "==", "b").Evaluate(null);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementNotEqualsTrue()
+        {
+            bool result = new ComparisonConditionElement(null, "a", "!=", "b").Evaluate(null);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementNotEqualsFalse()
+        {
+            bool result = new ComparisonConditionElement(null, "a", "!=", "a").Evaluate(null);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementEqualsNullTrue()
+        {
+            bool result = new ComparisonConditionElement(null, null, "==", null).Evaluate(null);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementEqualsNullFalse()
+        {
+            bool result = new ComparisonConditionElement(null, null, "==", "a").Evaluate(null);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementEqualsNullFalseReverse()
+        {
+            bool result = new ComparisonConditionElement(null, "a", "==", null).Evaluate(null);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementNotEqualsNullFalse()
+        {
+            bool result = new ComparisonConditionElement(null, null, "!=", null).Evaluate(null);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementNotEqualsNullTrue()
+        {
+            bool result = new ComparisonConditionElement(null, "a", "!=", null).Evaluate(null);
+
+            Assert.IsTrue(result);
+        }
+
+
+        [TestMethod]
+        public void ComparisonConditionElementGreaterThanOrEqualTrue()
+        {
+            using(new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1", ">=", "1.000000").Evaluate(x => x);
+
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementLessThanOrEqualTrueEqual()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1", "<=", "1.000000").Evaluate(x => x);
+
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementLessThanOrEqualTrueLess()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "0.9", "<=", "1.000000").Evaluate(x => x);
+
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementLessThanOrEqualFalseLess()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1.1", "<=", "1.000000").Evaluate(x => x);
+
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementGreaterThanTrue()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1.5", ">", "1.445").Evaluate(x => x);
+
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementLessThanTrue()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1.35555", "<", "1.445").Evaluate(x => x);
+
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementLessThanFalse()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1.35555", "<", "1.35555").Evaluate(x => x);
+
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void ComparisonConditionElementGreaterThanFalse()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                bool result = new ComparisonConditionElement(null, "1.35555", ">", "1.35555").Evaluate(x => x);
+
+                Assert.IsFalse(result);
+            }
         }
     }
 }

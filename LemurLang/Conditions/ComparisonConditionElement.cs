@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using LemurLang.Exceptions;
 
 namespace LemurLang.Conditions
 {
@@ -34,40 +36,76 @@ namespace LemurLang.Conditions
 
         public override bool Evaluate(Func<string, object> contextGetter)
         {
-            object left = contextGetter(Lhs);
-            object right = contextGetter(Rhs);
+            Regex contextProperty = new Regex(@"^\$\{([a-zA-Z0-9.]+)\}$");
+
+            object left = null;
+            if (Lhs != null)
+            {
+                Match lhsMatch = contextProperty.Match(Lhs);
+                left = lhsMatch.Success ? contextGetter(lhsMatch.Groups[1].Value) : Lhs;
+            }
+
+            object right = null;
+            if (Rhs != null)
+            {
+                Match rhsMatch = contextProperty.Match(Rhs);
+                right = rhsMatch.Success ? contextGetter(rhsMatch.Groups[1].Value) : Rhs;
+            }
 
             bool leftIsNull = left == null;
             bool rightIsNull = right == null;
             bool bothNull = leftIsNull && rightIsNull;
             bool anyNull = leftIsNull || rightIsNull;
+            bool referenceEquals = object.ReferenceEquals(left, right);
 
             switch (Operator)
             {
                 case "==":
-                    if (object.ReferenceEquals(left, right) || bothNull)
-                        return true;
+                case "!=":
+                    bool isEqualOperator = Operator == "==";
+
+                    if (referenceEquals || bothNull)
+                        return isEqualOperator;
                     else if (anyNull)
-                    {
-                        return false;
-                    }
+                        return !isEqualOperator;
                     else
                     {
+                        Type leftType = left.GetType();
+                        Type rightType = right.GetType();
 
+                        object rightValueToCompare = (leftType==rightType) ? right : Convert.ChangeType(right, leftType);
+
+                        bool doesEqual = left.Equals(rightValueToCompare);
+                        if (isEqualOperator)
+                            return doesEqual;
+                        else
+                            return !doesEqual;
                     }
-                    return false;
                 case "<=":
-                    return false;
                 case ">=":
-                    return false;
                 case "<":
-                    return false;
                 case ">":
-                    return false;
-                case "!=":
-                    return false;
+                    if (anyNull)
+                        throw new ConditionException("Cannot compare null values in condition: " + this.ToString());
+
+                    decimal leftDecimal = Convert.ToDecimal(left);
+                    decimal rightDecimal = Convert.ToDecimal(right);
+
+                    switch (Operator)
+                    {
+                        case ">=":
+                            return leftDecimal >= rightDecimal;
+                        case "<=":
+                            return leftDecimal <= rightDecimal;
+                        case "<":
+                            return leftDecimal < rightDecimal;
+                        case ">":
+                            return leftDecimal > rightDecimal;
+                        default:
+                            throw new ConditionException("Unknown operator: " + Operator);
+                    }
                 default:
-                    throw new Exception();
+                    throw new ConditionException("Unknown operator: " + Operator);
             }
         }
     }
