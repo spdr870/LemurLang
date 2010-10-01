@@ -30,13 +30,13 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return "IF: " + this.State;
+            return "IF: " + this.Arguments;
         }
 
         protected virtual bool GetConditionEvaluation(EvaluationContext evaluationContext)
         {
             ConditionEngine conditionHandler = new ConditionEngine();
-            ConditionElementList conditions = conditionHandler.Build(this.State);
+            ConditionElementList conditions = conditionHandler.Build(this.Arguments);
 
             bool result = conditions.Evaluate(evaluationContext.GetValue);
             return result;

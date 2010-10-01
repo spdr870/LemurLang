@@ -14,7 +14,7 @@ namespace LemurLang.Interfaces
         int IndexInTemplate { get; set; }
         bool NeedsToBeEnded { get; set; }
 
-        string State { get; set; }
+        string Arguments { get; set; }
 
         string DisplayTree(int currentLevel);
 

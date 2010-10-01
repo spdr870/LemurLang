@@ -94,7 +94,7 @@ namespace LemurLang
                                 index++;
                             }
                             consumer.RemoveLastCharacter();
-                            expression.State = consumer.ToString();
+                            expression.Arguments = consumer.ToString();
                         }
                         else if (element == "if")
                         {
@@ -122,7 +122,7 @@ namespace LemurLang
                                 consumer.Append(nextChar);
                                 index++;
                             }
-                            expression.State = consumer.ToString();
+                            expression.Arguments = consumer.ToString();
                         }
                         else if (element == "elseif")
                         {
@@ -149,7 +149,7 @@ namespace LemurLang
                                 consumer.Append(nextChar);
                                 index++;
                             }
-                            expression.State = consumer.ToString();
+                            expression.Arguments = consumer.ToString();
                         }
                         else if (element == "else")
                         {
@@ -222,7 +222,7 @@ namespace LemurLang
                             {
                                 Parent = currentNode,
                                 IndexInTemplate = index,
-                                State = consumer.ToString()
+                                Arguments = consumer.ToString()
                             };
 
                             currentNode.Children.Add(print);

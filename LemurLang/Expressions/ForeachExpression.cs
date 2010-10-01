@@ -19,16 +19,16 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return "FOREACH: " + this.State;
+            return "FOREACH: " + this.Arguments;
         }
 
         public override string Evaluate(EvaluationContext evaluationContext)
         {
             StringBuilder builder = new StringBuilder();
 
-            Match match = Regex.Match(this.State, @"\$\{(?'var'[a-zA-Z0-9.]+)\}(?:\s+)in(?:\s+)\$\{(?'source'[a-zA-Z0-9.]+)\}");
+            Match match = Regex.Match(this.Arguments, @"\$\{(?'var'[a-zA-Z0-9.]+)\}(?:\s+)in(?:\s+)\$\{(?'source'[a-zA-Z0-9.]+)\}");
             if (!match.Success)
-                throw new EvaluationException("Could not interpret foreach: " + this.State);
+                throw new EvaluationException("Could not interpret foreach: " + this.Arguments);
 
             string varToIntroduce = match.Groups["var"].Value;
             string sourceName = match.Groups["source"].Value;

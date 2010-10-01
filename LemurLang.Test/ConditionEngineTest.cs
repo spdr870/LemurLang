@@ -27,7 +27,8 @@ namespace LemurLang.Test
             Assert.IsFalse(conditionHandler.Build("true && false").Evaluate(x => x));
             Assert.IsTrue(conditionHandler.Build("true && true").Evaluate(x => x));
             Assert.IsFalse(conditionHandler.Build("false && false").Evaluate(x => x));
-            Assert.IsTrue(conditionHandler.Build("false && false || true").Evaluate(x => x));
+            Assert.IsFalse(conditionHandler.Build("false && false || true").Evaluate(x => x));
+            Assert.IsTrue(conditionHandler.Build("(false && false) || true").Evaluate(x => x));
         }
 
         [TestMethod]

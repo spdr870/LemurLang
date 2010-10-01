@@ -15,7 +15,7 @@ namespace LemurLang.Expressions
 
         public override string ToString()
         {
-            return "ELSEIF: " + this.State;
+            return "ELSEIF: " + this.Arguments;
         }
 
         public override string Evaluate(EvaluationContext evaluationContext)

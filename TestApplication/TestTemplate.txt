@@ -38,7 +38,7 @@ testcomment
 
 #if(${Program.Variable} != ${Program.Variable})
   5
-#elseif(${Program.Variable} == {people.Count})
+#elseif(${Program.Variable} == ${people.Count})
   6
 #else
   ${Program.Variable}

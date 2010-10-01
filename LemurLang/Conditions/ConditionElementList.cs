@@ -59,13 +59,20 @@ namespace LemurLang.Conditions
                     LogicalOperatorConditionElement logical = element as LogicalOperatorConditionElement;
                     if (logical == null)
                     {
-                        bool currentResult = element.Evaluate(contextGetter);
                         if (lastLogical.Operator == "&&")
                         {
+                            if (!result)
+                                return false; //short circuit
+
+                            bool currentResult = element.Evaluate(contextGetter);
                             result = result && currentResult;
                         }
                         else if (lastLogical.Operator == "||")
                         {
+                            if (result)
+                                return true; //short circuit
+                            
+                            bool currentResult = element.Evaluate(contextGetter);
                             result = result || currentResult;
                         }
                     }

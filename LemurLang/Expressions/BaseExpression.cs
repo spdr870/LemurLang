@@ -9,8 +9,6 @@ namespace LemurLang.Expressions
 {
     public abstract class BaseExpression : IExpression
     {
-        protected TemplateEngine _expressionHandler;
-
         public BaseExpression(bool needsToBeEnded)
         {
             this.Children = new List<IExpression>();
@@ -32,7 +30,7 @@ namespace LemurLang.Expressions
             return this.UsedTag;
         }
 
-        public string State { get; set; }
+        public string Arguments { get; set; }
 
         public virtual string DisplayTree(int currentLevel)
         {
