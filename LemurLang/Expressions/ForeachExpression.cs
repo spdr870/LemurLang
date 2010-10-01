@@ -28,7 +28,7 @@ namespace LemurLang.Expressions
 
             Match match = Regex.Match(this.State, @"\$\{(?'var'[a-zA-Z0-9.]+)\}(?:\s+)in(?:\s+)\$\{(?'source'[a-zA-Z0-9.]+)\}");
             if (!match.Success)
-                throw new Exception();
+                throw new EvaluationException("Could not interpret foreach: " + this.State);
 
             string varToIntroduce = match.Groups["var"].Value;
             string sourceName = match.Groups["source"].Value;

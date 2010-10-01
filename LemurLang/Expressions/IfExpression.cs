@@ -33,7 +33,7 @@ namespace LemurLang.Expressions
             return "IF: " + this.State;
         }
 
-        internal bool GetConditionEvaluation(EvaluationContext evaluationContext)
+        protected virtual bool GetConditionEvaluation(EvaluationContext evaluationContext)
         {
             ConditionEngine conditionHandler = new ConditionEngine();
             ConditionElementList conditions = conditionHandler.Build(this.State);

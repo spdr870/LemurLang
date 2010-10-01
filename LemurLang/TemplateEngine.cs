@@ -80,7 +80,7 @@ namespace LemurLang
                             currentNode = expression;
 
                             if (nextChar != '(')
-                                throw new Exception();
+                                throw new ParseException("Expected '(' after foreach. Line number: " + GetLineNumberFromIndex(template, index));
                             
                             StringBuilder consumer = new StringBuilder();
                             index++;
@@ -88,7 +88,7 @@ namespace LemurLang
                             {
                                 nextChar = template[index + 1];
                                 if (nextChar == '\r' || nextChar == '\n')
-                                    throw new Exception();
+                                    throw new ParseException("Expected ')' but encountered newline after foreach. Line number: " + GetLineNumberFromIndex(template, index));
 
                                 consumer.Append(nextChar);
                                 index++;
@@ -102,6 +102,9 @@ namespace LemurLang
                             currentNode.Children.Add(expression);
                             currentNode = expression;
 
+                            if (nextChar != '(')
+                                throw new ParseException("Expected '(' after if. Line number: " + GetLineNumberFromIndex(template, index));
+
                             StringBuilder consumer = new StringBuilder();
                             consumer.Append(nextChar);
                             int stackCount = 1;
@@ -114,7 +117,7 @@ namespace LemurLang
                                 else if (nextChar == ')')
                                     stackCount--;
                                 else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
-                                    throw new Exception();
+                                    throw new ParseException("Expected ')' but encountered newline in if-statement. Line number: " + GetLineNumberFromIndex(template, index));
 
                                 consumer.Append(nextChar);
                                 index++;
@@ -126,6 +129,9 @@ namespace LemurLang
                             IExpression expression = new ElseIfExpression() { Parent = currentNode };
                             currentNode.Children.Add(expression);
 
+                            if (nextChar != '(')
+                                throw new ParseException("Expected '(' after if. Line number: " + GetLineNumberFromIndex(template, index));
+
                             StringBuilder consumer = new StringBuilder();
                             consumer.Append(nextChar);
                             int stackCount = 1;
@@ -138,7 +144,7 @@ namespace LemurLang
                                 else if (nextChar == ')')
                                     stackCount--;
                                 else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
-                                    throw new Exception();
+                                    throw new ParseException("Expected ')' but encountered newline in elseif-statement. Line number: " + GetLineNumberFromIndex(template, index));
 
                                 consumer.Append(nextChar);
                                 index++;
@@ -154,6 +160,9 @@ namespace LemurLang
                         else if (element == "end")
                         {
                             currentNode = currentNode.Parent;
+
+                            if (currentNode == null)
+                                throw new ParseException("Did not expect #end here. Line: " + GetLineNumberFromIndex(template, index));
                         }
                         else if (foreachSubItems.Contains(element))
                         {
@@ -194,10 +203,11 @@ namespace LemurLang
                     if (index + 1 < template.Length)
                     {
                         char nextChar = template[index + 1];
+                        index++;
                         if (nextChar == '{')
                         {
                             StringBuilder consumer = new StringBuilder();
-                            index++;
+                            
                             while (nextChar != '}')
                             {
                                 nextChar = template[index + 1];
@@ -236,7 +246,7 @@ namespace LemurLang
 
             if (builder.Length > 0)
             {
-                CreateAndAddTextExpression(currentNode, builder, 0);//todo index
+                CreateAndAddTextExpression(currentNode, builder, template.Length - builder.Length);
             }
 
             if (currentNode != root)

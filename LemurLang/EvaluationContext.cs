@@ -23,7 +23,7 @@ namespace LemurLang
         internal EvaluationContext Parent { get; set; }
 
 
-        internal object GetValue(string reference)
+        public object GetValue(string reference)
         {
             string[] path = reference.Split('.');
             object rootObject = GetRootObject(path[0]);

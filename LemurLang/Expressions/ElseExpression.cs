@@ -12,5 +12,10 @@ namespace LemurLang.Expressions
         {
             return "ELSE:";
         }
+
+        protected override bool GetConditionEvaluation(EvaluationContext evaluationContext)
+        {
+            return true;
+        }
     }
 }
