@@ -35,7 +35,7 @@ namespace LemurLang.Expressions
 
         internal bool GetConditionEvaluation(EvaluationContext evaluationContext)
         {
-            ConditionHandler conditionHandler = new ConditionHandler();
+            ConditionEngine conditionHandler = new ConditionEngine();
             ConditionElementList conditions = conditionHandler.Build(this.State);
 
             bool result = conditions.Evaluate(evaluationContext.GetValue);

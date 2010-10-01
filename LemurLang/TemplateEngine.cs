@@ -9,13 +9,8 @@ using System.Linq;
 
 namespace LemurLang
 {
-    public class ExpressionHandler
+    public class TemplateEngine
     {
-        public ExpressionHandler()
-        {
-
-        }
-
         public IExpression BuildExpression(string template)
         {
             List<string> foreachSubItems = new List<string>(new string[]{

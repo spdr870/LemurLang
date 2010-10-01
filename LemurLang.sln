@@ -5,7 +5,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LemurLang", "LemurLang\Lemu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{D1824672-70B8-48F7-ABC4-EEF0330FC9D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LemurLang.Test", "LemurLang.Test\LemurLang.Test.csproj", "{5956749F-F882-4654-BCD3-BDD62504A6B1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{56D6E963-E499-4F54-80F6-5729ED7018AE}"
+	ProjectSection(SolutionItems) = preProject
+		LemurLang.vsmdi = LemurLang.vsmdi
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = LemurLang.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -19,6 +30,10 @@ Global
 		{D1824672-70B8-48F7-ABC4-EEF0330FC9D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1824672-70B8-48F7-ABC4-EEF0330FC9D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1824672-70B8-48F7-ABC4-EEF0330FC9D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5956749F-F882-4654-BCD3-BDD62504A6B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5956749F-F882-4654-BCD3-BDD62504A6B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5956749F-F882-4654-BCD3-BDD62504A6B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5956749F-F882-4654-BCD3-BDD62504A6B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

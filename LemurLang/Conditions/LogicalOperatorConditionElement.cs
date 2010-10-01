@@ -26,7 +26,9 @@ namespace LemurLang.Conditions
             if (this.Operator != null)
             {
                 builder.Append(new string('\t', currentLevel));
+                builder.Append(" ");
                 builder.Append(this.Operator);
+                builder.Append(" ");
             }
 
             return builder.ToString();

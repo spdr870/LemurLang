@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LemurLang
 {
-    public static class StringBuildExtensions
+    public static class StringBuilderExtensions
     {
         public static void Clear(this StringBuilder builder)
         {

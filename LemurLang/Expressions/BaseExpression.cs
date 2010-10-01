@@ -9,7 +9,7 @@ namespace LemurLang.Expressions
 {
     public abstract class BaseExpression : IExpression
     {
-        protected ExpressionHandler _expressionHandler;
+        protected TemplateEngine _expressionHandler;
 
         public BaseExpression(bool needsToBeEnded)
         {

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using LemurLang.Conditions;
+using LemurLang.Exceptions;
 
 namespace LemurLang
 {
-    public class ConditionHandler
+    public class ConditionEngine
     {
         public ConditionElementList Build(string input)
         {
@@ -24,8 +25,12 @@ namespace LemurLang
             bool lastCharacterWasAmpersand = false;
             bool lastCharacterWasPipe = false;
 
+            int index = 0;
+            int parenthesisStack = 0;
             foreach (char currentChar in workstring)
             {
+                index++;
+                
                 if (currentChar == '(') //start new list
                 {
                     if (rootElementList == null) // first list
@@ -44,18 +49,26 @@ namespace LemurLang
                         //the new list is now the current list
                         currentElementList = newList;
                     }
+
+                    parenthesisStack++;
                 }
                 else if (currentChar == ')')
                 {
                     AddPossibleText(currentElementList, currentLiteral);
 
-                    if (currentElementList.Children.Last() is LogicalOperatorConditionElement)
+                    if (currentElementList == null || (currentElementList.Parent == null && currentElementList != rootElementList) || currentElementList.Children.Last() is LogicalOperatorConditionElement)
                     {
-                        throw new Exception();//todo
+                        throw new ConditionException(string.Format(
+                            "Did not expect: '{0}' here. Condition index: {1}",
+                            ")",
+                            index
+                        ));
                     }
 
                     //pop back to previous list
                     currentElementList = (ConditionElementList)currentElementList.Parent;
+
+                    parenthesisStack--;
                 }
                 else if (currentChar == '&')
                 {
@@ -65,15 +78,36 @@ namespace LemurLang
 
                         if (currentElementList.Children.Count == 0 || currentElementList.Children.Last() is LogicalOperatorConditionElement)
                         {
-                            throw new Exception();//todo
+                            throw new ConditionException(string.Format(
+                                "Did not expect: '{0}' here. Condition index: {1}",
+                                "&",
+                                index
+                            ));
                         }
                         
                         LogicalOperatorConditionElement operatorConditionElement = new LogicalOperatorConditionElement(currentElementList.Parent, "&&");
                         currentElementList.Children.Add(operatorConditionElement);
                         lastCharacterWasAmpersand = false;
                     }
+                    else if (lastCharacterWasPipe)
+                    {
+                        throw new ConditionException(string.Format(
+                            "Did not expect: '{0}' here. Condition index: {1}",
+                            "|",
+                            index
+                        ));
+                    }
                     else
                     {
+                        if ((currentLiteral.Length == 0 || currentLiteral.ToString().Trim() == string.Empty) && currentElementList.Children.LastOrDefault() is LogicalOperatorConditionElement)
+                        {
+                            throw new ConditionException(string.Format(
+                                "Did not expect: '{0}' here. Condition index: {1}",
+                                "&",
+                                index
+                            ));
+                        }
+                        
                         lastCharacterWasAmpersand = true;
                     }
                 }
@@ -85,15 +119,36 @@ namespace LemurLang
 
                         if (currentElementList.Children.Count == 0 || currentElementList.Children.Last() is LogicalOperatorConditionElement)
                         {
-                            throw new Exception();//todo
+                            throw new ConditionException(string.Format(
+                                "Did not expect: '{0}' here. Condition index: {1}",
+                                "|",
+                                index
+                            ));
                         }
 
                         LogicalOperatorConditionElement operatorConditionElement = new LogicalOperatorConditionElement(currentElementList.Parent, "||");
                         currentElementList.Children.Add(operatorConditionElement);
                         lastCharacterWasPipe = false;
                     }
+                    else if (lastCharacterWasAmpersand)
+                    {
+                        throw new ConditionException(string.Format(
+                            "Did not expect: '{0}' here. Condition index: {1}",
+                            "|",
+                            index
+                        ));
+                    }
                     else
                     {
+                        if ((currentLiteral.Length == 0 || currentLiteral.ToString().Trim() == string.Empty) && currentElementList.Children.LastOrDefault() is LogicalOperatorConditionElement)
+                        {
+                            throw new ConditionException(string.Format(
+                                "Did not expect: '{0}' here. Condition index: {1}",
+                                "|",
+                                index
+                            ));
+                        }
+
                         lastCharacterWasPipe = true;
                     }
                 }
@@ -101,6 +156,11 @@ namespace LemurLang
                 {
                     currentLiteral.Append(currentChar);
                 }
+            }
+
+            if (parenthesisStack > 0)
+            {
+                throw new ConditionException(string.Format("Missing closing parenthesis(es): {0}", parenthesisStack));
             }
 
             return rootElementList;
