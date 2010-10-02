@@ -9,10 +9,9 @@ namespace LemurLang.Templates
 {
     public abstract class BaseTemplate : ITemplate
     {
-        public BaseTemplate(bool needsToBeEnded)
+        public BaseTemplate()
         {
             this.Children = new List<ITemplate>();
-            this.NeedsToBeEnded = needsToBeEnded;
         }
 
         public List<ITemplate> Children { get; set; }
@@ -22,8 +21,6 @@ namespace LemurLang.Templates
         public ITemplate Parent { get; set; }
         
         public int IndexInTemplate { get; set; }
-
-        public bool NeedsToBeEnded { get; set; }
 
         public override string ToString()
         {

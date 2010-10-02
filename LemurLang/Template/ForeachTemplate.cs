@@ -12,11 +12,6 @@ namespace LemurLang.Templates
 {
     public class ForeachTemplate : BaseTemplate
     {
-        public ForeachTemplate()
-            : base(true)
-        {
-        }
-
         public override string ToString()
         {
             return "FOREACH: " + this.Arguments;

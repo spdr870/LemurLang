@@ -9,11 +9,6 @@ namespace LemurLang.Templates
 {
     public class TextTemplate : BaseTemplate
     {
-        public TextTemplate()
-            : base(false)
-        {
-        }
-        
         public string Text { get; set; }
 
         public override string ToString()

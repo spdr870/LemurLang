@@ -9,11 +9,6 @@ namespace LemurLang.Templates
 {
     public class ElseIfTemplate : IfTemplate
     {
-        public ElseIfTemplate()
-        {
-            this.NeedsToBeEnded = false;
-        }
-
         public override string ToString()
         {
             return "ELSEIF: " + this.Arguments;

@@ -8,7 +8,6 @@ namespace LemurLang.Templates
     public class RootTemplate : BaseTemplate
     {
         public RootTemplate()
-            : base(false)
         {
             this.UsedTag = "__ROOT";
         }

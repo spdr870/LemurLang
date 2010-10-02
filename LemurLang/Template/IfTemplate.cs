@@ -10,11 +10,6 @@ namespace LemurLang.Templates
 {
     public class IfTemplate : BaseTemplate
     {
-        public IfTemplate()
-            : base(true)
-        {
-        }
-
         public override string DisplayTree(int currentLevel)
         {
             StringBuilder builder = new StringBuilder();

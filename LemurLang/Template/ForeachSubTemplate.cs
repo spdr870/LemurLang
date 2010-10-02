@@ -8,11 +8,6 @@ namespace LemurLang.Templates
 {
     public class ForeachSubTemplate : BaseTemplate
     {
-        public ForeachSubTemplate()
-            : base(false)
-        {
-        }
-
         public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)
         {
             currentItem.Children.Add(this);

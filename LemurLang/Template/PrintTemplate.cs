@@ -8,12 +8,6 @@ namespace LemurLang.Templates
 {
     public class PrintTemplate : BaseTemplate
     {
-        public PrintTemplate()
-            : base(false)
-        {
-
-        }
-
         public override string ToString()
         {
             return "PRINT: " + this.Arguments;

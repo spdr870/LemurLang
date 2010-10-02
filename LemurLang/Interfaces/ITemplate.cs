@@ -12,7 +12,6 @@ namespace LemurLang.Interfaces
         string UsedTag { get; set; }
         ITemplate Parent { get; set; }
         int IndexInTemplate { get; set; }
-        bool NeedsToBeEnded { get; set; }
 
         string Arguments { get; set; }
 
