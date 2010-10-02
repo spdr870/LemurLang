@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using LemurLang.Interfaces;
 
@@ -20,6 +19,17 @@ namespace LemurLang.Templates
         public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)
         {
             throw new InvalidOperationException();
+        }
+
+        public string Evaluate(EvaluationContext evaluationContext)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            Action<string> writer = (x) => builder.Append(x);
+
+            this.Evaluate(evaluationContext, writer);
+
+            return builder.ToString();
         }
     }
 }

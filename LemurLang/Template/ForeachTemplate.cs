@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Text.RegularExpressions;
-using LemurLang.Interfaces;
 using System.Collections;
-using LemurLang.Exceptions;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using LemurLang.Exceptions;
+using LemurLang.Interfaces;
 
 namespace LemurLang.Templates
 {
@@ -44,10 +43,8 @@ namespace LemurLang.Templates
             return new TemplateParseResult(this, index);
         }
 
-        public override string Evaluate(EvaluationContext evaluationContext)
+        public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
-            StringBuilder builder = new StringBuilder();
-
             Match match = Regex.Match(this.Arguments, @"\$\{(?'var'[a-zA-Z0-9.]+)\}(?:\s+)in(?:\s+)\$\{(?'source'[a-zA-Z0-9.]+)\}");
             if (!match.Success)
                 throw new EvaluationException("Could not interpret foreach: " + this.Arguments);
@@ -125,6 +122,7 @@ namespace LemurLang.Templates
             
             bool isEven = true;
             bool hadData = false;
+            bool isFirst = true;
 
             long index = 0;
             foreach (object item in loopable)
@@ -140,24 +138,29 @@ namespace LemurLang.Templates
                     evaluationContext
                 );
 
+                if (isFirst && beforeAllTemplate != null)
+                {
+                    beforeAllTemplate.Evaluate(evaluationContext, write);
+                }
+
                 if (beforeTemplate != null)
                 {
-                    builder.Append(beforeTemplate.Evaluate(subEvaluationContext));
+                    beforeTemplate.Evaluate(subEvaluationContext, write);
                 }
 
                 if (!isEven && oddTemplate != null)
                 {
-                    builder.Append(oddTemplate.Evaluate(subEvaluationContext));
+                    oddTemplate.Evaluate(subEvaluationContext, write);
                 }
 
                 if (isEven && evenTemplate != null)
                 {
-                    builder.Append(evenTemplate.Evaluate(subEvaluationContext));
+                    evenTemplate.Evaluate(subEvaluationContext, write);
                 }
 
                 if (eachTemplate != null)
                 {
-                    builder.Append(eachTemplate.Evaluate(subEvaluationContext));
+                    eachTemplate.Evaluate(subEvaluationContext, write);
                 }
 
                 //#each (this is optional since its the default section)
@@ -165,38 +168,32 @@ namespace LemurLang.Templates
                 {
                     if (!(child is ForeachSubTemplate))
                     {
-                        string childResult = child.Evaluate(subEvaluationContext);
-                        builder.Append(childResult);
+                        child.Evaluate(subEvaluationContext, write);
                     }
                 }
 
                 if (afterTemplate != null)
                 {
-                    builder.Append(afterTemplate.Evaluate(subEvaluationContext));
+                    afterTemplate.Evaluate(subEvaluationContext, write);
                 }
 
                 if (betweenTemplate != null)
                 {
-                    builder.Append(betweenTemplate.Evaluate(subEvaluationContext));
+                    betweenTemplate.Evaluate(subEvaluationContext, write);
                 }
-            }
 
-            if (hadData && beforeAllTemplate != null)
-            {
-                builder.Insert(0, beforeAllTemplate.Evaluate(evaluationContext));
+                isFirst = false;
             }
 
             if (hadData && afterAllTemplate != null)
             {
-                builder.Append(afterAllTemplate.Evaluate(evaluationContext));
+                afterAllTemplate.Evaluate(evaluationContext, write);
             }
 
             if (!hadData && noDataTemplate != null)
             {
-                builder.Append(noDataTemplate.Evaluate(evaluationContext));
+                noDataTemplate.Evaluate(evaluationContext, write);
             }
-
-            return builder.ToString();
         }
     }
 }

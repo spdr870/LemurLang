@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using LemurLang.Interfaces;
 using LemurLang.Exceptions;
+using LemurLang.Interfaces;
 
 namespace LemurLang.Templates
 {
@@ -45,16 +43,12 @@ namespace LemurLang.Templates
             return new TemplateParseResult(currentItem, index);
         }
 
-        public override string Evaluate(EvaluationContext evaluationContext)
+        public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
-            StringBuilder builder = new StringBuilder();
-
             foreach (ITemplate expression in this.Children)
             {
-                builder.Append(expression.Evaluate(evaluationContext));
+                expression.Evaluate(evaluationContext, write);
             }
-
-            return builder.ToString();
         }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using LemurLang.Interfaces;
 
 namespace LemurLang.Templates
@@ -13,12 +10,12 @@ namespace LemurLang.Templates
             return "PRINT: " + this.Arguments;
         }
 
-        public override string Evaluate(EvaluationContext evaluationContext)
+        public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
             string reference = this.Arguments;
             object evaluationResult = evaluationContext.GetValue(reference);
 
-            return evaluationResult == null ? string.Empty : evaluationResult.ToString();
+            write( evaluationResult == null ? string.Empty : evaluationResult.ToString() );
         }
 
         public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)

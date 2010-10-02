@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using LemurLang.Interfaces;
 
 namespace LemurLang.Templates
@@ -20,9 +16,9 @@ namespace LemurLang.Templates
             //);
         }
 
-        public override string Evaluate(EvaluationContext evaluationContext)
+        public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
-            return this.Text;
+            write(this.Text);
         }
 
         public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)

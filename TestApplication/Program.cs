@@ -1,12 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using LemurLang;
-using LemurLang.Interfaces;
-using System.Collections;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
+using LemurLang.Templates;
 
 namespace TestApplication
 {
@@ -28,7 +25,7 @@ namespace TestApplication
                 TemplateEngine engine = new TemplateEngine();
 
                 string testTemplateString = File.ReadAllText("TestTemplate.txt");
-                ITemplate testTemplate = engine.BuildTemplate(testTemplateString);
+                RootTemplate testTemplate = engine.BuildTemplate(testTemplateString);
 
                 Console.WriteLine("TREE -->");
                 Console.WriteLine();
@@ -55,7 +52,9 @@ namespace TestApplication
                 Console.WriteLine();
 
                 Console.WriteLine("Evaluated:");
-                Console.WriteLine(testTemplate.Evaluate(evaluationContext));
+                //string result = testTemplate.Evaluate(evaluationContext);
+                //Console.WriteLine(result);
+                testTemplate.Evaluate(evaluationContext, x => Console.Write(x));
 
                 Console.WriteLine();
                 Console.WriteLine();
@@ -86,8 +85,8 @@ namespace TestApplication
 
         private static void Runtemplate(TemplateEngine engine, string template, EvaluationContext context)
         {
-            ITemplate testTemplate = engine.BuildTemplate(template);
-            testTemplate.Evaluate(context);
+            RootTemplate testTemplate = engine.BuildTemplate(template);
+            testTemplate.Evaluate(context, x => { });//without IO or storing in string(builder)
         }
     }
 }

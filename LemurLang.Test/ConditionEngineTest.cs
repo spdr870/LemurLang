@@ -1,13 +1,8 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using LemurLang.Exceptions;
-using System.Text.RegularExpressions;
+﻿using System.Globalization;
 using LemurLang.Conditions;
+using LemurLang.Exceptions;
 using LemurLang.Test.Tools;
-using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LemurLang.Test
 {

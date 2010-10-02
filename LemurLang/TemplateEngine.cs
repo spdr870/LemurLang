@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using LemurLang.Templates;
-using LemurLang.Interfaces;
 using LemurLang.Exceptions;
-using System.Linq;
+using LemurLang.Interfaces;
+using LemurLang.Templates;
 
 namespace LemurLang
 {
@@ -43,7 +42,7 @@ namespace LemurLang
             itemCreators[name] = itemCreator;
         }
         
-        public ITemplate BuildTemplate(string template)
+        public RootTemplate BuildTemplate(string template)
         {
             RootTemplate root = new RootTemplate();
             ITemplate currentItem = root;

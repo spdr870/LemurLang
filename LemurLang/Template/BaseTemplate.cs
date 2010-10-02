@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using LemurLang.Interfaces;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace LemurLang.Templates
 {
@@ -43,16 +41,12 @@ namespace LemurLang.Templates
             return builder.ToString();
         }
 
-        public virtual string Evaluate(EvaluationContext evaluationContext)
-        {
-            StringBuilder builder = new StringBuilder();
-
-            foreach (ITemplate expression in this.Children)
+        public virtual void Evaluate(EvaluationContext evaluationContext, Action<string> write)
+        {           
+            foreach (ITemplate templateItem in this.Children)
             {
-                builder.Append(expression.Evaluate(evaluationContext));
+                templateItem.Evaluate(evaluationContext, write);
             }
-
-            return builder.ToString();
         }
 
         public abstract TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar);

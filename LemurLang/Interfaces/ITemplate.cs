@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace LemurLang.Interfaces
 {
@@ -19,6 +16,6 @@ namespace LemurLang.Interfaces
 
         TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar);
 
-        string Evaluate(EvaluationContext evaluationContext);
+        void Evaluate(EvaluationContext evaluationContext, Action<string> write);
     }
 }

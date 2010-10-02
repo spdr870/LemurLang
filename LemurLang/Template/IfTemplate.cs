@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using LemurLang.Interfaces;
 using LemurLang.Conditions;
 using LemurLang.Exceptions;
+using LemurLang.Interfaces;
 
 namespace LemurLang.Templates
 {
@@ -69,31 +67,25 @@ namespace LemurLang.Templates
             return result;
         }
 
-        public override string Evaluate(EvaluationContext evaluationContext)
+        public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
             bool result = GetConditionEvaluation(evaluationContext);
 
-            StringBuilder builder = new StringBuilder();
-
-            List<ITemplate> childrenToExecute = new List<ITemplate>();
-
-            foreach (ITemplate expression in this.Children)
+            foreach (ITemplate templateItem in this.Children)
             {
-                if (result && !(expression is ElseIfTemplate))
+                if (result && !(templateItem is ElseIfTemplate))
                 {
-                    builder.Append(expression.Evaluate(evaluationContext));
+                    templateItem.Evaluate(evaluationContext, write);
                 }
-                else if (result && expression is ElseIfTemplate)
+                else if (result && templateItem is ElseIfTemplate)
                 {
                     break;
                 }
-                else if (!result && expression is ElseIfTemplate)
+                else if (!result && templateItem is ElseIfTemplate)
                 {
-                    result = ((ElseIfTemplate)expression).GetConditionEvaluation(evaluationContext);
+                    result = ((ElseIfTemplate)templateItem).GetConditionEvaluation(evaluationContext);
                 }
             }
-
-            return builder.ToString();
         }
     }
 }
