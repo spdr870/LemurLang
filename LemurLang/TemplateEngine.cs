@@ -39,7 +39,7 @@ namespace LemurLang
                     StringBuilder hashbuildUp = new StringBuilder();
                     char? nextChar = null;
 
-                    bool wasSingleLineComment = false;
+                    bool elementWasComment = false;
 
                     bool first = true;
                     while (index + 1 < template.Length)
@@ -47,12 +47,35 @@ namespace LemurLang
                         nextChar = template[ index + 1];
                         if (first && nextChar == '#')//## single line comment
                         {
+                            index++;
                             while ((nextChar != '\n' && nextChar != '\r') && index + 1 < template.Length)
                             {
                                 index++;
                                 nextChar = template[index];
                             }
-                            wasSingleLineComment = true;
+
+                            elementWasComment = true;
+                            break;
+                        }
+                        else if (first && nextChar == '*') //multiline comment
+                        {
+                            int startIndex = index;
+                            string nextTwoCharacters = null;
+                            index++;
+                            bool foundCommendEnd = false;
+                            while ((nextTwoCharacters != "*#") && index + 2 < template.Length)
+                            {
+                                index++;
+                                nextTwoCharacters = template.Substring(index, 2);
+                                if(nextTwoCharacters == "*#")
+                                    foundCommendEnd = true;
+                            }
+
+                            if (!foundCommendEnd)
+                                throw new ParseException("Non-ending comment found on line: " + GetLineNumberFromIndex(template, startIndex));
+
+                            index++;
+                            elementWasComment = true;
                             break;
                         }
 
@@ -186,7 +209,7 @@ namespace LemurLang
                         elementHandled = false;
                     }
 
-                    if (!elementHandled && !wasSingleLineComment)
+                    if (!elementHandled && !elementWasComment)
                     {
                         if (nextChar != null)
                             builder.Append(nextChar.Value);

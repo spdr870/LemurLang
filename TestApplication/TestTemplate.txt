@@ -1,7 +1,9 @@
 ﻿<html>
-#comment
-testcomment
-#end
+###testcomment1
+
+#*
+testcomment2
+*#
 
 <b>${Program.Variable}</b><b>${Program.Variable}</b>
 <b>${dict.test}</b>

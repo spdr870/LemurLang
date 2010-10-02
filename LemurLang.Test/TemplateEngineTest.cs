@@ -91,6 +91,38 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
+        public void MultiLineCommentInOneLine()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            ITemplate expression = engine.BuildTemplate("#*#foreach(${person} in ${persons})${person}#end*#");
+
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() { }, null);
+
+            string result = expression.Evaluate(context);
+            Assert.AreEqual(string.Empty, result);
+        }
+
+        [TestMethod]
+        public void MultiLineCommentInMultipleLines()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            ITemplate expression = engine.BuildTemplate("\r\tq#*#foreach(\r${person} in ${persons})${pe\nrson}#end*#\na");
+
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() { }, null);
+
+            string result = expression.Evaluate(context);
+            Assert.AreEqual("\r\tq\na", result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void MultiLineCommentInMultipleLinesWithoutEnding()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            ITemplate expression = engine.BuildTemplate("\n\n\r\tq#*#foreach(\r${person} in ${persons})${pe\nrson}#end\na");
+        }
+
+        [TestMethod]
         public void Print()
         {
             TemplateEngine engine = new TemplateEngine();
