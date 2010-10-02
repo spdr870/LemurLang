@@ -280,5 +280,13 @@ namespace LemurLang.Test
             TemplateEngine engine = new TemplateEngine();
             ITemplate expression = engine.BuildTemplate("#if(true\r) #end");
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidIfPrintStatement()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            ITemplate expression = engine.BuildTemplate("test${asddsa\na}");
+        }
     }
 }

@@ -212,7 +212,7 @@ namespace LemurLang
                             {
                                 nextChar = template[index + 1];
                                 if (nextChar == '\r' || nextChar == '\n')
-                                    throw new Exception();
+                                    throw new ParseException(string.Format("Did not expect {0} here. Line: {1}", Regex.Escape(nextChar.ToString()), GetLineNumberFromIndex(template, index)));
 
                                 consumer.Append(nextChar);
                                 index++;
