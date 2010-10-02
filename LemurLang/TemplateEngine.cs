@@ -18,7 +18,6 @@ namespace LemurLang
             });
             
             List<string> items = new List<string>(new string[]{
-                "comment",
                 "foreach",
                 "if",
                 "elseif",
@@ -40,9 +39,22 @@ namespace LemurLang
                     StringBuilder hashbuildUp = new StringBuilder();
                     char? nextChar = null;
 
+                    bool wasSingleLineComment = false;
+
+                    bool first = true;
                     while (index + 1 < template.Length)
                     {
                         nextChar = template[ index + 1];
+                        if (first && nextChar == '#')//## single line comment
+                        {
+                            while ((nextChar != '\n' && nextChar != '\r') && index + 1 < template.Length)
+                            {
+                                index++;
+                                nextChar = template[index];
+                            }
+                            wasSingleLineComment = true;
+                            break;
+                        }
 
                         bool inFirstRange = nextChar >= 'A' && nextChar <= 'Z';
                         bool inSecondRange = nextChar >= 'a' && nextChar <= 'z';
@@ -55,6 +67,7 @@ namespace LemurLang
                         {
                             break;
                         }
+                        first = false;
                     }
 
                     string element = hashbuildUp.ToString();
@@ -67,13 +80,7 @@ namespace LemurLang
                             CreateAndAddTextTemplate(currentNode, builder, index);
                         }
 
-                        if (element == "comment")
-                        {
-                            ITemplate expression = new CommentTemplate() { Parent = currentNode };
-                            currentNode.Children.Add(expression);
-                            currentNode = expression;
-                        }
-                        else if (element == "foreach")
+                        if (element == "foreach")
                         {
                             ITemplate expression = new ForeachTemplate() { Parent = currentNode };
                             currentNode.Children.Add(expression);
@@ -179,7 +186,7 @@ namespace LemurLang
                         elementHandled = false;
                     }
 
-                    if (!elementHandled)
+                    if (!elementHandled && !wasSingleLineComment)
                     {
                         if (nextChar != null)
                             builder.Append(nextChar.Value);

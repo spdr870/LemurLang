@@ -67,15 +67,27 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
-        public void Comment()
+        public void SingleLineCommentWithLineEnding()
         {
             TemplateEngine engine = new TemplateEngine();
-            ITemplate expression = engine.BuildTemplate("#comment sdhashd${test}avdjsadhsajvdsvdvshdsajdvsahdvjsad#end");
+            ITemplate expression = engine.BuildTemplate("##aaa${test}aaa#end#foreacg#if###\n");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() { }, null);
 
             string result = expression.Evaluate(context);
             Assert.AreEqual(string.Empty, result);
+        }
+
+        [TestMethod]
+        public void SingleLineCommentWithoutLineEnding()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            ITemplate expression = engine.BuildTemplate("test##aaa${test}aaa#end#foreacg#if###");
+
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() { }, null);
+
+            string result = expression.Evaluate(context);
+            Assert.AreEqual("test", result);
         }
 
         [TestMethod]
