@@ -26,14 +26,14 @@ namespace TestApplication
             {
                 TemplateEngine handler = new TemplateEngine();
 
-                string testTemplate = File.ReadAllText("TestTemplate.txt");
-                IExpression testExpression = handler.BuildExpression(testTemplate);
+                string testTemplateString = File.ReadAllText("TestTemplate.txt");
+                ITemplate testTemplate = handler.BuildTemplate(testTemplateString);
 
                 Console.WriteLine("TREE -->");
                 Console.WriteLine();
                 Console.WriteLine();
 
-                Console.WriteLine(testExpression.DisplayTree(0));
+                Console.WriteLine(testTemplate.DisplayTree(0));
 
                 var context = new Dictionary<string, object>() {
                     {"Program", new Program(){ Variable = 6 }},
@@ -53,7 +53,7 @@ namespace TestApplication
                 Console.WriteLine();
 
                 Console.WriteLine("Evaluated:");
-                Console.WriteLine(testExpression.Evaluate(evaluationContext));
+                Console.WriteLine(testTemplate.Evaluate(evaluationContext));
 
                 Console.ReadLine();
             }

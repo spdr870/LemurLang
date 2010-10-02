@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B9EC029B-8F46-49B7-8693-681430489EE8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -49,16 +49,16 @@
     <Compile Include="Exceptions\ConditionException.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
     <Compile Include="Exceptions\EvaluationException.cs" />
-    <Compile Include="Expressions\BaseExpression.cs" />
-    <Compile Include="Expressions\ElseExpression.cs" />
-    <Compile Include="Expressions\ForeachSubExpression.cs" />
-    <Compile Include="Expressions\CommentExpression.cs" />
-    <Compile Include="Expressions\ElseIfExpression.cs" />
-    <Compile Include="Expressions\ForeachExpression.cs" />
-    <Compile Include="Expressions\IfExpression.cs" />
-    <Compile Include="Expressions\PrintExpression.cs" />
-    <Compile Include="Expressions\RootExpression.cs" />
-    <Compile Include="Expressions\TextExpression.cs" />
+    <Compile Include="Template\BaseTemplate.cs" />
+    <Compile Include="Template\ElseTemplate.cs" />
+    <Compile Include="Template\ForeachSubTemplate.cs" />
+    <Compile Include="Template\CommentTemplate.cs" />
+    <Compile Include="Template\ElseIfTemplate.cs" />
+    <Compile Include="Template\ForeachTemplate.cs" />
+    <Compile Include="Template\IfTemplate.cs" />
+    <Compile Include="Template\PrintTemplate.cs" />
+    <Compile Include="Template\RootTemplate.cs" />
+    <Compile Include="Template\TextTemplate.cs" />
     <Compile Include="Interfaces\IExpression.cs" />
     <Compile Include="Interfaces\IExpressionResponse.cs" />
     <Compile Include="TemplateEngine.cs" />

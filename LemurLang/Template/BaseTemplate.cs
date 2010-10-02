@@ -5,21 +5,21 @@ using LemurLang.Interfaces;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public abstract class BaseExpression : IExpression
+    public abstract class BaseTemplate : ITemplate
     {
-        public BaseExpression(bool needsToBeEnded)
+        public BaseTemplate(bool needsToBeEnded)
         {
-            this.Children = new List<IExpression>();
+            this.Children = new List<ITemplate>();
             this.NeedsToBeEnded = needsToBeEnded;
         }
 
-        public List<IExpression> Children { get; set; }
+        public List<ITemplate> Children { get; set; }
 
         public string UsedTag { get; set; }
 
-        public IExpression Parent { get; set; }
+        public ITemplate Parent { get; set; }
         
         public int IndexInTemplate { get; set; }
 
@@ -38,7 +38,7 @@ namespace LemurLang.Expressions
             builder.Append('\t', currentLevel);
             builder.AppendLine(this.ToString());
 
-            foreach (IExpression expression in this.Children)
+            foreach (ITemplate expression in this.Children)
             {
                 builder.AppendLine(expression.DisplayTree(currentLevel + 1));
             }
@@ -50,7 +50,7 @@ namespace LemurLang.Expressions
         {
             StringBuilder builder = new StringBuilder();
 
-            foreach (IExpression expression in this.Children)
+            foreach (ITemplate expression in this.Children)
             {
                 builder.Append(expression.Evaluate(evaluationContext));
             }

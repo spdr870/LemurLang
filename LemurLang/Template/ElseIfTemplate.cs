@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using LemurLang.Interfaces;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class ElseIfExpression : IfExpression
+    public class ElseIfTemplate : IfTemplate
     {
-        public ElseIfExpression()
+        public ElseIfTemplate()
         {
             this.NeedsToBeEnded = false;
         }
@@ -22,7 +22,7 @@ namespace LemurLang.Expressions
         {
             StringBuilder builder = new StringBuilder();
 
-            foreach (IExpression expression in this.Children)
+            foreach (ITemplate expression in this.Children)
             {
                 builder.Append(expression.Evaluate(evaluationContext));
             }

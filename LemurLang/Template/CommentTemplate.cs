@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using LemurLang.Interfaces;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class CommentExpression : BaseExpression
+    public class CommentTemplate : BaseTemplate
     {
-        public CommentExpression()
+        public CommentTemplate()
             : base(true)
         {
         }

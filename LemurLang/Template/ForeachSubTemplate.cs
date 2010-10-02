@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class ForeachSubExpression : BaseExpression
+    public class ForeachSubTemplate : BaseTemplate
     {
-        public ForeachSubExpression()
+        public ForeachSubTemplate()
             : base(false)
         {
         }

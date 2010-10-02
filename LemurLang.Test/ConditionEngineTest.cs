@@ -18,7 +18,7 @@ namespace LemurLang.Test
     public class ConditionEngineTest
     {
         [TestMethod]
-        public void SimpleExpressions()
+        public void SimpleTemplates()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -35,7 +35,7 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
-        public void ComplexExpression1()
+        public void ComplexTemplate1()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -43,7 +43,7 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
-        public void ComplexExpression2()
+        public void ComplexTemplate2()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -51,7 +51,7 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
-        public void ComplexExpression3()
+        public void ComplexTemplate3()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -59,7 +59,7 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
-        public void ComplexExpression4()
+        public void ComplexTemplate4()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -68,7 +68,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression1()
+        public void InvalidTemplate1()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -77,7 +77,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression2()
+        public void InvalidTemplate2()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -86,7 +86,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression3()
+        public void InvalidTemplate3()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -95,7 +95,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression4()
+        public void InvalidTemplate4()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -104,7 +104,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression5()
+        public void InvalidTemplate5()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -113,7 +113,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression6()
+        public void InvalidTemplate6()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -122,7 +122,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression7()
+        public void InvalidTemplate7()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -131,7 +131,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression8()
+        public void InvalidTemplate8()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -140,7 +140,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression9()
+        public void InvalidTemplate9()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 
@@ -149,7 +149,7 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ConditionException))]
-        public void InvalidExpression10()
+        public void InvalidTemplate10()
         {
             ConditionEngine conditionHandler = new ConditionEngine();
 

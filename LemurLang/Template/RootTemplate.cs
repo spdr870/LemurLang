@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class RootExpression : BaseExpression
+    public class RootTemplate : BaseTemplate
     {
-        public RootExpression()
+        public RootTemplate()
             : base(false)
         {
             this.UsedTag = "__ROOT";

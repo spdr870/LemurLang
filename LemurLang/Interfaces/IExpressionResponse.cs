@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LemurLang.Interfaces
 {
-    public interface IExpressionResponse
+    public interface ITemplateResponse
     {
         string Content { get; set; }
     }

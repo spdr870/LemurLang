@@ -5,11 +5,11 @@ using System.Text;
 using LemurLang.Interfaces;
 using LemurLang.Conditions;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class IfExpression : BaseExpression
+    public class IfTemplate : BaseTemplate
     {
-        public IfExpression()
+        public IfTemplate()
             : base(true)
         {
         }
@@ -20,9 +20,9 @@ namespace LemurLang.Expressions
             builder.Append('\t', currentLevel);
             builder.AppendLine(this.ToString());
 
-            foreach (IExpression expression in this.Children)
+            foreach (ITemplate expression in this.Children)
             {
-                builder.AppendLine(expression.DisplayTree(currentLevel + ((expression is ElseIfExpression) ? 0 : 1)));
+                builder.AppendLine(expression.DisplayTree(currentLevel + ((expression is ElseIfTemplate) ? 0 : 1)));
             }
 
             return builder.ToString();
@@ -48,21 +48,21 @@ namespace LemurLang.Expressions
 
             StringBuilder builder = new StringBuilder();
 
-            List<IExpression> childrenToExecute = new List<IExpression>();
+            List<ITemplate> childrenToExecute = new List<ITemplate>();
 
-            foreach (IExpression expression in this.Children)
+            foreach (ITemplate expression in this.Children)
             {
-                if (result && !(expression is ElseIfExpression))
+                if (result && !(expression is ElseIfTemplate))
                 {
                     builder.Append(expression.Evaluate(evaluationContext));
                 }
-                else if (result && expression is ElseIfExpression)
+                else if (result && expression is ElseIfTemplate)
                 {
                     break;
                 }
-                else if (!result && expression is ElseIfExpression)
+                else if (!result && expression is ElseIfTemplate)
                 {
-                    result = ((ElseIfExpression)expression).GetConditionEvaluation(evaluationContext);
+                    result = ((ElseIfTemplate)expression).GetConditionEvaluation(evaluationContext);
                 }
             }
 

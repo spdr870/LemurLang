@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using LemurLang.Interfaces;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class ElseExpression : ElseIfExpression
+    public class ElseTemplate : ElseIfTemplate
     {
         public override string ToString()
         {

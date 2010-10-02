@@ -18,7 +18,7 @@ namespace LemurLang.Test
         public void ForeachWithMultipleElements()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#foreach(${person} in ${persons})${person}#end");
+            ITemplate expression = engine.BuildTemplate("#foreach(${person} in ${persons})${person}#end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
                 {"persons", new List<string>(){
@@ -37,7 +37,7 @@ namespace LemurLang.Test
         public void ForeachWithOneElement()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#foreach(${person} in ${persons})${person}#end");
+            ITemplate expression = engine.BuildTemplate("#foreach(${person} in ${persons})${person}#end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
                 {"persons", new List<string>(){
@@ -54,7 +54,7 @@ namespace LemurLang.Test
         public void ForeachWithoutElements()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#foreach(${person} in ${persons})${person}#end");
+            ITemplate expression = engine.BuildTemplate("#foreach(${person} in ${persons})${person}#end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
                 {"persons", new List<string>(){
@@ -70,7 +70,7 @@ namespace LemurLang.Test
         public void Comment()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#comment sdhashd${test}avdjsadhsajvdsvdvshdsajdvsahdvjsad#end");
+            ITemplate expression = engine.BuildTemplate("#comment sdhashd${test}avdjsadhsajvdsvdvshdsajdvsahdvjsad#end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() { }, null);
 
@@ -82,7 +82,7 @@ namespace LemurLang.Test
         public void Print()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("a${toprint}a");
+            ITemplate expression = engine.BuildTemplate("a${toprint}a");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
                 {"toprint", "this"}
@@ -96,7 +96,7 @@ namespace LemurLang.Test
         public void Text()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("a$toprint}a");
+            ITemplate expression = engine.BuildTemplate("a$toprint}a");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
                 {"toprint", "this"}
@@ -110,7 +110,7 @@ namespace LemurLang.Test
         public void IfTrue()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#if(true)indeed#end");
+            ITemplate expression = engine.BuildTemplate("#if(true)indeed#end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
             }, null);
@@ -123,7 +123,7 @@ namespace LemurLang.Test
         public void IfFalse()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#if(false)no#end");
+            ITemplate expression = engine.BuildTemplate("#if(false)no#end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>()
             {
@@ -137,7 +137,7 @@ namespace LemurLang.Test
         public void ElseFalse()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#if(false) no #else indeed #end");
+            ITemplate expression = engine.BuildTemplate("#if(false) no #else indeed #end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>()
             {
@@ -151,7 +151,7 @@ namespace LemurLang.Test
         public void ElseTrue()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#if(true) indeed #else no #end");
+            ITemplate expression = engine.BuildTemplate("#if(true) indeed #else no #end");
 
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>()
             {
@@ -165,7 +165,7 @@ namespace LemurLang.Test
         public void LongElseElseIfElse()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression(@"
+            ITemplate expression = engine.BuildTemplate(@"
             #if(false)
             #elseif(false)
             #elseif(false)
@@ -186,7 +186,7 @@ namespace LemurLang.Test
         public void LongElseElseIf()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression(@"
+            ITemplate expression = engine.BuildTemplate(@"
             #if(false)
             #elseif(false)
             #elseif(false)
@@ -206,7 +206,7 @@ namespace LemurLang.Test
         public void ComplexConditions()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression(@"
+            ITemplate expression = engine.BuildTemplate(@"
             #if(false)
             #elseif(false)
             #elseif(true)
@@ -246,7 +246,7 @@ namespace LemurLang.Test
         public void OneEndTooMany()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#comment a #end #end");
+            ITemplate expression = engine.BuildTemplate("#comment a #end #end");
         }
 
         [TestMethod]
@@ -254,7 +254,7 @@ namespace LemurLang.Test
         public void InvalidForeachStart()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#foreach (${person} in ${persons})${person}#end");
+            ITemplate expression = engine.BuildTemplate("#foreach (${person} in ${persons})${person}#end");
         }
 
         [TestMethod]
@@ -262,7 +262,7 @@ namespace LemurLang.Test
         public void InvalidForeachEnd()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#foreach(${person} in ${persons}\n)${person}#end");
+            ITemplate expression = engine.BuildTemplate("#foreach(${person} in ${persons}\n)${person}#end");
         }
 
         [TestMethod]
@@ -270,7 +270,7 @@ namespace LemurLang.Test
         public void InvalidIfStart()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#if (true) #end");
+            ITemplate expression = engine.BuildTemplate("#if (true) #end");
         }
 
         [TestMethod]
@@ -278,7 +278,7 @@ namespace LemurLang.Test
         public void InvalidIfEnd()
         {
             TemplateEngine engine = new TemplateEngine();
-            IExpression expression = engine.BuildExpression("#if(true\r) #end");
+            ITemplate expression = engine.BuildTemplate("#if(true\r) #end");
         }
     }
 }

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class TextExpression : BaseExpression
+    public class TextTemplate : BaseTemplate
     {
-        public TextExpression()
+        public TextTemplate()
             : base(false)
         {
         }

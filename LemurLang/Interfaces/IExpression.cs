@@ -6,11 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace LemurLang.Interfaces
 {
-    public interface IExpression
+    public interface ITemplate
     {
-        List<IExpression> Children { get; }
+        List<ITemplate> Children { get; }
         string UsedTag { get; set; }
-        IExpression Parent { get; set; }
+        ITemplate Parent { get; set; }
         int IndexInTemplate { get; set; }
         bool NeedsToBeEnded { get; set; }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using LemurLang.Expressions;
+using LemurLang.Templates;
 using LemurLang.Interfaces;
 using LemurLang.Exceptions;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace LemurLang
 {
     public class TemplateEngine
     {
-        public IExpression BuildExpression(string template)
+        public ITemplate BuildTemplate(string template)
         {
             List<string> foreachSubItems = new List<string>(new string[]{
                 "beforeall", "before", "odd", "even", "each", "after", "between", "afterall", "nodata"
@@ -26,8 +26,8 @@ namespace LemurLang
                 "end"
             }.Concat(foreachSubItems));
             
-            RootExpression root = new RootExpression();
-            IExpression currentNode = root;
+            RootTemplate root = new RootTemplate();
+            ITemplate currentNode = root;
 
             StringBuilder builder = new StringBuilder();
 
@@ -64,18 +64,18 @@ namespace LemurLang
                     {
                         if (builder.Length > 0)
                         {
-                            CreateAndAddTextExpression(currentNode, builder, index);
+                            CreateAndAddTextTemplate(currentNode, builder, index);
                         }
 
                         if (element == "comment")
                         {
-                            IExpression expression = new CommentExpression() { Parent = currentNode };
+                            ITemplate expression = new CommentTemplate() { Parent = currentNode };
                             currentNode.Children.Add(expression);
                             currentNode = expression;
                         }
                         else if (element == "foreach")
                         {
-                            IExpression expression = new ForeachExpression() { Parent = currentNode };
+                            ITemplate expression = new ForeachTemplate() { Parent = currentNode };
                             currentNode.Children.Add(expression);
                             currentNode = expression;
 
@@ -98,7 +98,7 @@ namespace LemurLang
                         }
                         else if (element == "if")
                         {
-                            IExpression expression = new IfExpression() { Parent = currentNode };
+                            ITemplate expression = new IfTemplate() { Parent = currentNode };
                             currentNode.Children.Add(expression);
                             currentNode = expression;
 
@@ -126,7 +126,7 @@ namespace LemurLang
                         }
                         else if (element == "elseif")
                         {
-                            IExpression expression = new ElseIfExpression() { Parent = currentNode };
+                            ITemplate expression = new ElseIfTemplate() { Parent = currentNode };
                             currentNode.Children.Add(expression);
 
                             if (nextChar != '(')
@@ -153,7 +153,7 @@ namespace LemurLang
                         }
                         else if (element == "else")
                         {
-                            IExpression expression = new ElseExpression() { Parent = currentNode };
+                            ITemplate expression = new ElseTemplate() { Parent = currentNode };
                             currentNode.Children.Add(expression);
 
                         }
@@ -166,7 +166,7 @@ namespace LemurLang
                         }
                         else if (foreachSubItems.Contains(element))
                         {
-                            IExpression expression = new ForeachSubExpression() { Parent = currentNode, UsedTag = element };
+                            ITemplate expression = new ForeachSubTemplate() { Parent = currentNode, UsedTag = element };
                             currentNode.Children.Add(expression);
                         }
                         else
@@ -187,7 +187,7 @@ namespace LemurLang
                         builder.Append(hashbuildUp.ToString());
                         if (builder.Length > 0)
                         {
-                            CreateAndAddTextExpression(currentNode, builder, index);
+                            CreateAndAddTextTemplate(currentNode, builder, index);
                         }
                     }
                     
@@ -197,7 +197,7 @@ namespace LemurLang
                 {
                     if (builder.Length > 0)
                     {
-                        CreateAndAddTextExpression(currentNode, builder, index);
+                        CreateAndAddTextTemplate(currentNode, builder, index);
                     }
                     
                     if (index + 1 < template.Length)
@@ -218,7 +218,7 @@ namespace LemurLang
                                 index++;
                             }
                             consumer.RemoveLastCharacter();
-                            PrintExpression print = new PrintExpression()
+                            PrintTemplate print = new PrintTemplate()
                             {
                                 Parent = currentNode,
                                 IndexInTemplate = index,
@@ -246,7 +246,7 @@ namespace LemurLang
 
             if (builder.Length > 0)
             {
-                CreateAndAddTextExpression(currentNode, builder, template.Length - builder.Length);
+                CreateAndAddTextTemplate(currentNode, builder, template.Length - builder.Length);
             }
 
             if (currentNode != root)
@@ -263,9 +263,9 @@ namespace LemurLang
             return root;
         }
 
-        private static void CreateAndAddTextExpression(IExpression currentNode, StringBuilder builder, int index)
+        private static void CreateAndAddTextTemplate(ITemplate currentNode, StringBuilder builder, int index)
         {
-            TextExpression text = new TextExpression()
+            TextTemplate text = new TextTemplate()
             {
                 Text = builder.ToString(),
                 Parent = currentNode,

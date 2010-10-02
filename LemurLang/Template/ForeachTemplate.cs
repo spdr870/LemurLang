@@ -8,11 +8,11 @@ using System.Collections;
 using LemurLang.Exceptions;
 using System.Linq;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class ForeachExpression : BaseExpression
+    public class ForeachTemplate : BaseTemplate
     {
-        public ForeachExpression()
+        public ForeachTemplate()
             : base(true)
         {
         }
@@ -40,62 +40,62 @@ namespace LemurLang.Expressions
                 throw new EvaluationException(sourceName + " is not able to be foreached");
 
 
-            IExpression noDataExpression = null;
-            IExpression beforeAllExpression = null;
-            IExpression beforeExpression = null;
-            IExpression oddExpression = null;
-            IExpression evenExpression = null;
-            IExpression afterExpression = null;
-            IExpression betweenExpression = null;
-            IExpression afterAllExpression = null;
-            IExpression eachExpression = null;
+            ITemplate noDataTemplate = null;
+            ITemplate beforeAllTemplate = null;
+            ITemplate beforeTemplate = null;
+            ITemplate oddTemplate = null;
+            ITemplate evenTemplate = null;
+            ITemplate afterTemplate = null;
+            ITemplate betweenTemplate = null;
+            ITemplate afterAllTemplate = null;
+            ITemplate eachTemplate = null;
 
             //TODO: All inner sections are optional, and they can appear in any order multiple times (sections with same name will have their content appended) 
 
-            IExpression lastSubExpressionChild = null;
-            foreach (IExpression child in this.Children.ToList())
+            ITemplate lastSubTemplateChild = null;
+            foreach (ITemplate child in this.Children.ToList())
             {
-                ForeachSubExpression subExpression = child as ForeachSubExpression;
-                if (subExpression != null)
+                ForeachSubTemplate subTemplate = child as ForeachSubTemplate;
+                if (subTemplate != null)
                 {
-                    switch (subExpression.UsedTag)
+                    switch (subTemplate.UsedTag)
                     {
                         case "beforeall":
-                            beforeAllExpression = subExpression;
+                            beforeAllTemplate = subTemplate;
                             break;
                         case "before":
-                            beforeExpression = subExpression;
+                            beforeTemplate = subTemplate;
                             break;
                         case "odd":
-                            oddExpression = subExpression;
+                            oddTemplate = subTemplate;
                             break;
                         case "even":
-                            evenExpression = subExpression;
+                            evenTemplate = subTemplate;
                             break;
                         case "each":
-                            eachExpression = subExpression;
+                            eachTemplate = subTemplate;
                             break;
                         case "after":
-                            afterExpression = subExpression;
+                            afterTemplate = subTemplate;
                             break;
                         case "between":
-                            betweenExpression = subExpression;
+                            betweenTemplate = subTemplate;
                             break;
                         case "afterall":
-                            afterAllExpression = subExpression;
+                            afterAllTemplate = subTemplate;
                             break;
                         case "nodata":
-                            noDataExpression = subExpression;
+                            noDataTemplate = subTemplate;
                             break;
                     }
 
-                    lastSubExpressionChild = subExpression;
+                    lastSubTemplateChild = subTemplate;
                 }
                 else
                 {
-                    if (lastSubExpressionChild != null)
+                    if (lastSubTemplateChild != null)
                     {
-                        lastSubExpressionChild.Children.Add(child);
+                        lastSubTemplateChild.Children.Add(child);
                         this.Children.Remove(child);
                     }
                 }
@@ -118,60 +118,60 @@ namespace LemurLang.Expressions
                     evaluationContext
                 );
 
-                if (beforeExpression != null)
+                if (beforeTemplate != null)
                 {
-                    builder.Append(beforeExpression.Evaluate(subEvaluationContext));
+                    builder.Append(beforeTemplate.Evaluate(subEvaluationContext));
                 }
 
-                if (!isEven && oddExpression != null)
+                if (!isEven && oddTemplate != null)
                 {
-                    builder.Append(oddExpression.Evaluate(subEvaluationContext));
+                    builder.Append(oddTemplate.Evaluate(subEvaluationContext));
                 }
 
-                if (isEven && evenExpression != null)
+                if (isEven && evenTemplate != null)
                 {
-                    builder.Append(evenExpression.Evaluate(subEvaluationContext));
+                    builder.Append(evenTemplate.Evaluate(subEvaluationContext));
                 }
 
-                if (eachExpression != null)
+                if (eachTemplate != null)
                 {
-                    builder.Append(eachExpression.Evaluate(subEvaluationContext));
+                    builder.Append(eachTemplate.Evaluate(subEvaluationContext));
                 }
 
                 //#each (this is optional since its the default section)
-                foreach (IExpression child in this.Children)
+                foreach (ITemplate child in this.Children)
                 {
-                    if (!(child is ForeachSubExpression))
+                    if (!(child is ForeachSubTemplate))
                     {
                         string childResult = child.Evaluate(subEvaluationContext);
                         builder.Append(childResult);
                     }
                 }
 
-                if (afterExpression != null)
+                if (afterTemplate != null)
                 {
-                    builder.Append(afterExpression.Evaluate(subEvaluationContext));
+                    builder.Append(afterTemplate.Evaluate(subEvaluationContext));
                 }
 
-                if (betweenExpression != null)
+                if (betweenTemplate != null)
                 {
-                    builder.Append(betweenExpression.Evaluate(subEvaluationContext));
+                    builder.Append(betweenTemplate.Evaluate(subEvaluationContext));
                 }
             }
 
-            if (hadData && beforeAllExpression != null)
+            if (hadData && beforeAllTemplate != null)
             {
-                builder.Insert(0, beforeAllExpression.Evaluate(evaluationContext));
+                builder.Insert(0, beforeAllTemplate.Evaluate(evaluationContext));
             }
 
-            if (hadData && afterAllExpression != null)
+            if (hadData && afterAllTemplate != null)
             {
-                builder.Append(afterAllExpression.Evaluate(evaluationContext));
+                builder.Append(afterAllTemplate.Evaluate(evaluationContext));
             }
 
-            if (!hadData && noDataExpression != null)
+            if (!hadData && noDataTemplate != null)
             {
-                builder.Append(noDataExpression.Evaluate(evaluationContext));
+                builder.Append(noDataTemplate.Evaluate(evaluationContext));
             }
 
             return builder.ToString();

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace LemurLang.Expressions
+namespace LemurLang.Templates
 {
-    public class PrintExpression : BaseExpression
+    public class PrintTemplate : BaseTemplate
     {
-        public PrintExpression()
+        public PrintTemplate()
             : base(false)
         {
 
