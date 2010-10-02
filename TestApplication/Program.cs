@@ -39,9 +39,9 @@ namespace TestApplication
                 var context = new Dictionary<string, object>() {
                     {"Program", new Program(){ Variable = 6 }},
                     {"people", new List<Person>{
-                        new Person(){ Age=20, Bio="Woei", Name ="Test1"},
-                        new Person(){ Age=25, Bio="Waaaaaaa", Name ="Test2"},
-                        new Person(){ Age=30, Bio="Blieeee", Name ="Test3"}
+                        new Person(){ Age=20, Bio="Story1", Name ="Test1"},
+                        new Person(){ Age=25, Bio="Story2", Name ="Test2"},
+                        new Person(){ Age=30, Bio="Story3", Name ="Test3"}
                     }},
                     {"dict", new Dictionary<string, object>(){
                         {"test","test"}

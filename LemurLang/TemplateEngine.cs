@@ -59,7 +59,7 @@ namespace LemurLang
                 {
                     hashbuildUp.Clear();
                     
-                    char? nextChar = null;
+                    char nextChar = '\0';
 
                     bool first = true;
                     while (index + 1 < template.Length)
@@ -68,11 +68,21 @@ namespace LemurLang
                         if (first && nextChar == '#')//## single line comment
                         {
                             index++;
+                            //search for line ending
                             while ((nextChar != '\n' && nextChar != '\r') && index + 1 < template.Length)
                             {
                                 index++;
                                 nextChar = template[index];
                             }
+                            //eat whitespace
+                            while ((nextChar == '\n' || nextChar == '\r') && index + 1 < template.Length)
+                            {
+                                index++;
+                                nextChar = template[index];
+                            }
+                            if (nextChar != '\n' && nextChar != '\r')
+                                index--;
+                            //
                             break;
                         }
                         else if (first && nextChar == '*') //multiline comment
@@ -81,18 +91,32 @@ namespace LemurLang
                             string nextTwoCharacters = null;
                             index++;
                             bool foundCommendEnd = false;
-                            while ((nextTwoCharacters != "*#") && index + 2 < template.Length)
+                            while (!foundCommendEnd && (nextTwoCharacters != "*#") && index + 2 < template.Length)
                             {
                                 index++;
                                 nextTwoCharacters = template.Substring(index, 2);
                                 if(nextTwoCharacters == "*#")
                                     foundCommendEnd = true;
                             }
+                            index++;
 
+                            if (index + 1 < template.Length)
+                            {
+                                //eat whitespace
+                                index++;
+                                nextChar = template[index];
+                                while ((nextChar == '\n' || nextChar == '\r') && index + 1 < template.Length)
+                                {
+                                    index++;
+                                    nextChar = template[index];
+                                }
+                                if (nextChar != '\n' && nextChar != '\r')
+                                    index--;
+                            }
                             if (!foundCommendEnd)
                                 throw new ParseException("Non-ending comment found on line: " + GetLineNumberFromIndex(template, startIndex));
 
-                            index++;
+                            
                             break;
                         }
 
@@ -123,6 +147,21 @@ namespace LemurLang
 
                         if (currentItem == null)
                             throw new ParseException("Did not expect #end here. Line: " + GetLineNumberFromIndex(template, index));
+
+                        //eat whitespace
+                        if (index + 1 < template.Length)
+                        {
+                            index++;
+                            nextChar = template[index];
+                            while ((nextChar == '\n' || nextChar == '\r') && index + 1 < template.Length)
+                            {
+                                index++;
+                                nextChar = template[index];
+                            }
+                            if (nextChar != '\n' && nextChar != '\r')
+                                index--; 
+                        }
+                        //
                     }
                     else if (hashbuildUp.Length > 0 && itemCreators.ContainsKey(element))
                     {
@@ -133,7 +172,7 @@ namespace LemurLang
 
                         try
                         {
-                            TemplateParseResult result = templateItem.Parse(template, currentItem, index, nextChar.Value);
+                            TemplateParseResult result = templateItem.Parse(template, currentItem, index, nextChar);
                             currentItem = result.CurrentTemplate;
                             index = result.Index;
                         }
@@ -141,6 +180,17 @@ namespace LemurLang
                         {
                             throw new ParseException("Error occurred while parsing. Line number: " + GetLineNumberFromIndex(template, index), ex);
                         }
+
+                        //eat whitespace
+                        nextChar = template[index];
+                        while ((nextChar == '\n' || nextChar == '\r') && index + 1 < template.Length)
+                        {
+                            index++;
+                            nextChar = template[index];
+                        }
+                        if (nextChar != '\n' && nextChar != '\r')
+                            index--;
+                        //
                     }
                 }
                 else if (c == '$')

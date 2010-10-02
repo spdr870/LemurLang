@@ -111,7 +111,7 @@ namespace LemurLang.Test
             EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() { }, null);
 
             string result = expression.Evaluate(context);
-            Assert.AreEqual("\r\tq\na", result);
+            Assert.AreEqual("\r\tqa", result);
         }
 
         [TestMethod]

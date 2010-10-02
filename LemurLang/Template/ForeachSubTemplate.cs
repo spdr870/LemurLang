@@ -17,7 +17,7 @@ namespace LemurLang.Templates
         {
             currentItem.Children.Add(this);
 
-            return new TemplateParseResult(currentItem, index);
+            return new TemplateParseResult(currentItem, index+1);
         }
     }
 }

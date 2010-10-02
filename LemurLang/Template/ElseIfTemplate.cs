@@ -43,6 +43,7 @@ namespace LemurLang.Templates
                 consumer.Append(nextChar);
                 index++;
             }
+            index++;
 
             this.Arguments = consumer.ToString();
 
