@@ -88,8 +88,8 @@ namespace LemurLang.Conditions
                     if (anyNull)
                         throw new ConditionException("Cannot compare null values in condition: " + this.ToString());
 
-                    decimal leftDecimal = Convert.ToDecimal(left);
-                    decimal rightDecimal = Convert.ToDecimal(right);
+                    decimal leftDecimal = ConvertToDecimal(left);
+                    decimal rightDecimal = ConvertToDecimal(right);
 
                     switch (Operator)
                     {
@@ -106,6 +106,22 @@ namespace LemurLang.Conditions
                     }
                 default:
                     throw new ConditionException("Unknown operator: " + Operator);
+            }
+        }
+
+        private static decimal ConvertToDecimal(object value)
+        {
+            try
+            {
+                return Convert.ToDecimal(value);
+            }
+            catch (FormatException ex)
+            {
+                throw new ConditionException("Cannot convert value to numeric value: " + value.ToString(), ex);
+            }
+            catch (InvalidCastException ex)
+            {
+                throw new ConditionException("Cannot cast value to numeric value" + value.ToString(), ex);
             }
         }
     }
