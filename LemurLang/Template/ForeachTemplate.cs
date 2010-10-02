@@ -22,6 +22,31 @@ namespace LemurLang.Templates
             return "FOREACH: " + this.Arguments;
         }
 
+        public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)
+        {
+            currentItem.Children.Add(this);
+
+            if (nextChar != '(')
+                throw new ParseException("Expected '(' after foreach");
+
+            StringBuilder consumer = new StringBuilder();
+            index++;
+            while (nextChar != ')')
+            {
+                nextChar = template[index + 1];
+                if (nextChar == '\r' || nextChar == '\n')
+                    throw new ParseException("Expected ')' but encountered newline after foreach");
+
+                consumer.Append(nextChar);
+                index++;
+            }
+            consumer.RemoveLastCharacter();
+            
+            this.Arguments = consumer.ToString();
+
+            return new TemplateParseResult(this, index);
+        }
+
         public override string Evaluate(EvaluationContext evaluationContext)
         {
             StringBuilder builder = new StringBuilder();
@@ -50,7 +75,7 @@ namespace LemurLang.Templates
             ITemplate afterAllTemplate = null;
             ITemplate eachTemplate = null;
 
-            //TODO: All inner sections are optional, and they can appear in any order multiple times (sections with same name will have their content appended) 
+            //TODO?: All inner sections are optional, and they can appear in any order multiple times (sections with same name will have their content appended) 
 
             ITemplate lastSubTemplateChild = null;
             foreach (ITemplate child in this.Children.ToList())

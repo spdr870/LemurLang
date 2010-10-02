@@ -10,5 +10,10 @@ namespace LemurLang.Exceptions
             : base(message)
         {
         }
+
+        public ParseException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

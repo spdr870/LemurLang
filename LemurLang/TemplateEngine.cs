@@ -9,24 +9,44 @@ using System.Linq;
 
 namespace LemurLang
 {
+    public delegate ITemplate TemplateItemCreator(string elementName);
+    
     public class TemplateEngine
     {
+        private Dictionary<string, TemplateItemCreator> itemCreators;
+        
+        public TemplateEngine()
+        {
+            itemCreators = new Dictionary<string, TemplateItemCreator>();
+
+            //foreach
+            this.RegisterItem("foreach", (x) => new ForeachTemplate());
+            //foreach subitems
+            this.RegisterItem("beforeall", (x) => new ForeachSubTemplate());
+            this.RegisterItem("before", (x) => new ForeachSubTemplate());
+            this.RegisterItem("odd", (x) => new ForeachSubTemplate());
+            this.RegisterItem("even", (x) => new ForeachSubTemplate());
+            this.RegisterItem("each", (x) => new ForeachSubTemplate());
+            this.RegisterItem("after", (x) => new ForeachSubTemplate());
+            this.RegisterItem("between", (x) => new ForeachSubTemplate());
+            this.RegisterItem("afterall", (x) => new ForeachSubTemplate());
+            this.RegisterItem("nodata", (x) => new ForeachSubTemplate());
+
+            //conditionals
+            this.RegisterItem("if", (x) => new IfTemplate());
+            this.RegisterItem("elseif", (x) => new ElseIfTemplate());
+            this.RegisterItem("else", (x) => new ElseTemplate());
+        }
+
+        public void RegisterItem(string name, TemplateItemCreator itemCreator)
+        {
+            itemCreators[name] = itemCreator;
+        }
+        
         public ITemplate BuildTemplate(string template)
         {
-            List<string> foreachSubItems = new List<string>(new string[]{
-                "beforeall", "before", "odd", "even", "each", "after", "between", "afterall", "nodata"
-            });
-            
-            List<string> items = new List<string>(new string[]{
-                "foreach",
-                "if",
-                "elseif",
-                "else",
-                "end"
-            }.Concat(foreachSubItems));
-            
             RootTemplate root = new RootTemplate();
-            ITemplate currentNode = root;
+            ITemplate currentItem = root;
 
             StringBuilder builder = new StringBuilder();
 
@@ -96,112 +116,40 @@ namespace LemurLang
                     string element = hashbuildUp.ToString();
 
                     bool elementHandled = true;
-                    if (hashbuildUp.Length > 0 && items.Contains(element))
+
+                    if (element == "end")
                     {
                         if (builder.Length > 0)
                         {
-                            CreateAndAddTextTemplate(currentNode, builder, index);
+                            CreateAndAddTextTemplate(currentItem, builder, index);
                         }
+                        
+                        currentItem = currentItem.Parent;
 
-                        if (element == "foreach")
+                        if (currentItem == null)
+                            throw new ParseException("Did not expect #end here. Line: " + GetLineNumberFromIndex(template, index));
+                    }
+                    else if (hashbuildUp.Length > 0 && itemCreators.ContainsKey(element))
+                    {
+                        if (builder.Length > 0)
                         {
-                            ITemplate expression = new ForeachTemplate() { Parent = currentNode };
-                            currentNode.Children.Add(expression);
-                            currentNode = expression;
-
-                            if (nextChar != '(')
-                                throw new ParseException("Expected '(' after foreach. Line number: " + GetLineNumberFromIndex(template, index));
-                            
-                            StringBuilder consumer = new StringBuilder();
-                            index++;
-                            while (nextChar != ')')
-                            {
-                                nextChar = template[index + 1];
-                                if (nextChar == '\r' || nextChar == '\n')
-                                    throw new ParseException("Expected ')' but encountered newline after foreach. Line number: " + GetLineNumberFromIndex(template, index));
-
-                                consumer.Append(nextChar);
-                                index++;
-                            }
-                            consumer.RemoveLastCharacter();
-                            expression.Arguments = consumer.ToString();
+                            CreateAndAddTextTemplate(currentItem, builder, index);
                         }
-                        else if (element == "if")
+                        
+                        ITemplate templateItem = itemCreators[element](element);
+                        templateItem.Parent = currentItem;
+                        templateItem.IndexInTemplate = index;
+                        templateItem.UsedTag = element;
+
+                        try
                         {
-                            ITemplate expression = new IfTemplate() { Parent = currentNode };
-                            currentNode.Children.Add(expression);
-                            currentNode = expression;
-
-                            if (nextChar != '(')
-                                throw new ParseException("Expected '(' after if. Line number: " + GetLineNumberFromIndex(template, index));
-
-                            StringBuilder consumer = new StringBuilder();
-                            consumer.Append(nextChar);
-                            int stackCount = 1;
-                            index++;
-                            while (stackCount > 0)
-                            {
-                                nextChar = template[index + 1];
-                                if (nextChar == '(')
-                                    stackCount--;
-                                else if (nextChar == ')')
-                                    stackCount--;
-                                else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
-                                    throw new ParseException("Expected ')' but encountered newline in if-statement. Line number: " + GetLineNumberFromIndex(template, index));
-
-                                consumer.Append(nextChar);
-                                index++;
-                            }
-                            expression.Arguments = consumer.ToString();
+                            TemplateParseResult result = templateItem.Parse(template, currentItem, index, nextChar.Value);
+                            currentItem = result.CurrentTemplate;
+                            index = result.Index;
                         }
-                        else if (element == "elseif")
+                        catch(Exception ex)
                         {
-                            ITemplate expression = new ElseIfTemplate() { Parent = currentNode };
-                            currentNode.Children.Add(expression);
-
-                            if (nextChar != '(')
-                                throw new ParseException("Expected '(' after if. Line number: " + GetLineNumberFromIndex(template, index));
-
-                            StringBuilder consumer = new StringBuilder();
-                            consumer.Append(nextChar);
-                            int stackCount = 1;
-                            index++;
-                            while (stackCount > 0)
-                            {
-                                nextChar = template[index + 1];
-                                if (nextChar == '(')
-                                    stackCount--;
-                                else if (nextChar == ')')
-                                    stackCount--;
-                                else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
-                                    throw new ParseException("Expected ')' but encountered newline in elseif-statement. Line number: " + GetLineNumberFromIndex(template, index));
-
-                                consumer.Append(nextChar);
-                                index++;
-                            }
-                            expression.Arguments = consumer.ToString();
-                        }
-                        else if (element == "else")
-                        {
-                            ITemplate expression = new ElseTemplate() { Parent = currentNode };
-                            currentNode.Children.Add(expression);
-
-                        }
-                        else if (element == "end")
-                        {
-                            currentNode = currentNode.Parent;
-
-                            if (currentNode == null)
-                                throw new ParseException("Did not expect #end here. Line: " + GetLineNumberFromIndex(template, index));
-                        }
-                        else if (foreachSubItems.Contains(element))
-                        {
-                            ITemplate expression = new ForeachSubTemplate() { Parent = currentNode, UsedTag = element };
-                            currentNode.Children.Add(expression);
-                        }
-                        else
-                        {
-                            elementHandled = false;
+                            throw new ParseException("Error occurred while parsing. Line number: " + GetLineNumberFromIndex(template, index), ex);
                         }
                     }
                     else
@@ -217,7 +165,7 @@ namespace LemurLang
                         builder.Append(hashbuildUp.ToString());
                         if (builder.Length > 0)
                         {
-                            CreateAndAddTextTemplate(currentNode, builder, index);
+                            CreateAndAddTextTemplate(currentItem, builder, index);
                         }
                     }
                     
@@ -227,7 +175,7 @@ namespace LemurLang
                 {
                     if (builder.Length > 0)
                     {
-                        CreateAndAddTextTemplate(currentNode, builder, index);
+                        CreateAndAddTextTemplate(currentItem, builder, index);
                     }
                     
                     if (index + 1 < template.Length)
@@ -250,12 +198,12 @@ namespace LemurLang
                             consumer.RemoveLastCharacter();
                             PrintTemplate print = new PrintTemplate()
                             {
-                                Parent = currentNode,
+                                Parent = currentItem,
                                 IndexInTemplate = index,
                                 Arguments = consumer.ToString()
                             };
 
-                            currentNode.Children.Add(print);
+                            currentItem.Children.Add(print);
                         }
                         else
                         {
@@ -276,15 +224,15 @@ namespace LemurLang
 
             if (builder.Length > 0)
             {
-                CreateAndAddTextTemplate(currentNode, builder, template.Length - builder.Length);
+                CreateAndAddTextTemplate(currentItem, builder, template.Length - builder.Length);
             }
 
-            if (currentNode != root)
+            if (currentItem != root)
             {
-                int lineNumber = GetLineNumberFromIndex(template, currentNode.IndexInTemplate);
+                int lineNumber = GetLineNumberFromIndex(template, currentItem.IndexInTemplate);
                 throw new ParseException(
                     string.Format("Tag '{0}' needs to be ended. Hint -->\r\nLine number: {1}",
-                        currentNode.UsedTag,
+                        currentItem.UsedTag,
                         lineNumber
                     )
                 );

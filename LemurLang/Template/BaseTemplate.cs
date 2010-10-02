@@ -57,5 +57,7 @@ namespace LemurLang.Templates
 
             return builder.ToString();
         }
+
+        public abstract TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar);
     }
 }

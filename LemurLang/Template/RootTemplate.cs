@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using LemurLang.Interfaces;
 
 namespace LemurLang.Templates
 {
@@ -15,6 +16,11 @@ namespace LemurLang.Templates
         public override string ToString()
         {
             return "ROOT";
+        }
+
+        public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)
+        {
+            throw new InvalidOperationException();
         }
     }
 }

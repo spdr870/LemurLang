@@ -52,6 +52,7 @@
     <Compile Include="Expression\ReversePolishNotation.cs" />
     <Compile Include="Expression\ReversePolishNotationToken.cs" />
     <Compile Include="Expression\TokenType.cs" />
+    <Compile Include="ParseResult.cs" />
     <Compile Include="Template\BaseTemplate.cs" />
     <Compile Include="Template\ElseTemplate.cs" />
     <Compile Include="Template\ForeachSubTemplate.cs" />
@@ -61,8 +62,7 @@
     <Compile Include="Template\PrintTemplate.cs" />
     <Compile Include="Template\RootTemplate.cs" />
     <Compile Include="Template\TextTemplate.cs" />
-    <Compile Include="Interfaces\IExpression.cs" />
-    <Compile Include="Interfaces\IExpressionResponse.cs" />
+    <Compile Include="Interfaces\ITemplate.cs" />
     <Compile Include="TemplateEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringBuilderExtensions.cs" />

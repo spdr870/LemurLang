@@ -17,5 +17,12 @@ namespace LemurLang.Templates
         {
             return true;
         }
+
+        public override TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar)
+        {
+            currentItem.Children.Add(this);
+
+            return new TemplateParseResult(currentItem, index);
+        }
     }
 }
