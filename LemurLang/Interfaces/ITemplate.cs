@@ -18,6 +18,8 @@ namespace LemurLang.Interfaces
 
         string DisplayTree(int currentLevel);
 
+        TemplateParseResult Parse(string template, ITemplate currentItem, int index, char nextChar);
+
         string Evaluate(EvaluationContext evaluationContext);
     }
 }
