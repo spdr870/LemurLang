@@ -40,6 +40,7 @@ namespace LemurLang.Templates
                 consumer.Append(nextChar);
                 index++;
             }
+            index++;
             consumer.RemoveLastCharacter();
             
             this.Arguments = consumer.ToString();

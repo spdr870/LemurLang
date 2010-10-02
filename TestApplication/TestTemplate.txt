@@ -1,9 +1,12 @@
 ﻿<html>
 ###testcomment1
 
+-
+
 #*
 testcomment2
 *#
+-
 
 <b>${Program.Variable}</b><b>${Program.Variable}</b>
 ##testcomment3
@@ -40,6 +43,13 @@ testcomment4
 
 #nodata
        Sorry No Person Found
+#end
+
+#foreach(${person} in ${emptylist})
+#each
+test
+#nodata
+this was an empty list
 #end
 
 #if(${Program.Variable} < -6)

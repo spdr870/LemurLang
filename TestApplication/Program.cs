@@ -25,10 +25,10 @@ namespace TestApplication
         {
             try
             {
-                TemplateEngine handler = new TemplateEngine();
+                TemplateEngine engine = new TemplateEngine();
 
                 string testTemplateString = File.ReadAllText("TestTemplate.txt");
-                ITemplate testTemplate = handler.BuildTemplate(testTemplateString);
+                ITemplate testTemplate = engine.BuildTemplate(testTemplateString);
 
                 Console.WriteLine("TREE -->");
                 Console.WriteLine();
@@ -45,7 +45,8 @@ namespace TestApplication
                     }},
                     {"dict", new Dictionary<string, object>(){
                         {"test","test"}
-                    }}
+                    }},
+                    {"emptylist", new List<object>{}}
                 };
                 EvaluationContext evaluationContext = new EvaluationContext(context, null);
 
@@ -65,7 +66,7 @@ namespace TestApplication
                 watch.Start();
                 for (int i = 0; i < times; i++)
                 {
-                    Runtemplate(testTemplateString, evaluationContext);
+                    Runtemplate(engine, testTemplateString, evaluationContext);
                 }
                 watch.Stop();
                 Console.WriteLine("Total cost: {0}ms", watch.ElapsedMilliseconds);
@@ -83,10 +84,9 @@ namespace TestApplication
             }
         }
 
-        private static void Runtemplate(string template, EvaluationContext context)
+        private static void Runtemplate(TemplateEngine engine, string template, EvaluationContext context)
         {
-            TemplateEngine handler = new TemplateEngine();
-            ITemplate testTemplate = handler.BuildTemplate(template);
+            ITemplate testTemplate = engine.BuildTemplate(template);
             testTemplate.Evaluate(context);
         }
     }
