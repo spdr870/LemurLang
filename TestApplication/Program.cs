@@ -6,6 +6,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace TestApplication
 {
@@ -55,6 +56,24 @@ namespace TestApplication
                 Console.WriteLine("Evaluated:");
                 Console.WriteLine(testTemplate.Evaluate(evaluationContext));
 
+                Console.WriteLine();
+                Console.WriteLine();
+
+                int times = 1000;
+                Console.WriteLine("Running template {0} times -->", times);
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                for (int i = 0; i < times; i++)
+                {
+                    Runtemplate(testTemplateString, evaluationContext);
+                }
+                watch.Stop();
+                Console.WriteLine("Total cost: {0}ms", watch.ElapsedMilliseconds);
+                decimal total = watch.ElapsedMilliseconds / (decimal)times;
+                Console.WriteLine("Cost per build AND evaluate: {0}ms", total);
+
+                Console.WriteLine();
+                Console.WriteLine("Hit enter");
                 Console.ReadLine();
             }
             catch (Exception ex)
@@ -62,6 +81,13 @@ namespace TestApplication
                 Console.WriteLine(ex);
                 Console.ReadLine();
             }
+        }
+
+        private static void Runtemplate(string template, EvaluationContext context)
+        {
+            TemplateEngine handler = new TemplateEngine();
+            ITemplate testTemplate = handler.BuildTemplate(template);
+            testTemplate.Evaluate(context);
         }
     }
 }

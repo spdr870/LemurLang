@@ -48,7 +48,8 @@ namespace LemurLang
             RootTemplate root = new RootTemplate();
             ITemplate currentItem = root;
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(500);
+            StringBuilder hashbuildUp = new StringBuilder(500);
 
             for(int index = 0; index < template.Length; index++)
             {
@@ -56,10 +57,9 @@ namespace LemurLang
 
                 if (c == '#')
                 {
-                    StringBuilder hashbuildUp = new StringBuilder();
+                    hashbuildUp.Clear();
+                    
                     char? nextChar = null;
-
-                    bool elementWasComment = false;
 
                     bool first = true;
                     while (index + 1 < template.Length)
@@ -73,8 +73,6 @@ namespace LemurLang
                                 index++;
                                 nextChar = template[index];
                             }
-
-                            elementWasComment = true;
                             break;
                         }
                         else if (first && nextChar == '*') //multiline comment
@@ -95,7 +93,6 @@ namespace LemurLang
                                 throw new ParseException("Non-ending comment found on line: " + GetLineNumberFromIndex(template, startIndex));
 
                             index++;
-                            elementWasComment = true;
                             break;
                         }
 
@@ -115,15 +112,13 @@ namespace LemurLang
 
                     string element = hashbuildUp.ToString();
 
-                    bool elementHandled = true;
+                    if (builder.Length > 0)
+                    {
+                        CreateAndAddTextTemplate(currentItem, builder, index);
+                    }
 
                     if (element == "end")
                     {
-                        if (builder.Length > 0)
-                        {
-                            CreateAndAddTextTemplate(currentItem, builder, index);
-                        }
-                        
                         currentItem = currentItem.Parent;
 
                         if (currentItem == null)
@@ -131,11 +126,6 @@ namespace LemurLang
                     }
                     else if (hashbuildUp.Length > 0 && itemCreators.ContainsKey(element))
                     {
-                        if (builder.Length > 0)
-                        {
-                            CreateAndAddTextTemplate(currentItem, builder, index);
-                        }
-                        
                         ITemplate templateItem = itemCreators[element](element);
                         templateItem.Parent = currentItem;
                         templateItem.IndexInTemplate = index;
@@ -147,29 +137,11 @@ namespace LemurLang
                             currentItem = result.CurrentTemplate;
                             index = result.Index;
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             throw new ParseException("Error occurred while parsing. Line number: " + GetLineNumberFromIndex(template, index), ex);
                         }
                     }
-                    else
-                    {
-                        elementHandled = false;
-                    }
-
-                    if (!elementHandled && !elementWasComment)
-                    {
-                        if (nextChar != null)
-                            builder.Append(nextChar.Value);
-                        builder.Append(c);
-                        builder.Append(hashbuildUp.ToString());
-                        if (builder.Length > 0)
-                        {
-                            CreateAndAddTextTemplate(currentItem, builder, index);
-                        }
-                    }
-                    
-                    hashbuildUp.Clear();
                 }
                 else if (c == '$')
                 {
@@ -237,6 +209,8 @@ namespace LemurLang
                     )
                 );
             }
+
+            hashbuildUp.Clear();
 
             return root;
         }

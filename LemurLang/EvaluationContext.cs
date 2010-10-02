@@ -37,7 +37,7 @@ namespace LemurLang
                 if (rootObject == null)
                     throw new EvaluationException("NULL reference: " + reference);
                 
-                return TraverseRootObject(rootObject, path.Skip(1).ToArray());
+                return TraverseObject(rootObject, path.Skip(1).ToArray());
             }
         }
 
@@ -57,7 +57,7 @@ namespace LemurLang
             }
         }
 
-        private object TraverseRootObject(object currentObject, string[] path)
+        private object TraverseObject(object currentObject, string[] path)
         {
             if (currentObject == null)
                 throw new EvaluationException("NULL reference: " + string.Join(".", path));
@@ -80,7 +80,7 @@ namespace LemurLang
             }
             else
             {
-                return TraverseRootObject(value, path.Skip(1).ToArray());
+                return TraverseObject(value, path.Skip(1).ToArray());
             }
         }
     }

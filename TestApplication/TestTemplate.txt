@@ -6,7 +6,11 @@ testcomment2
 *#
 
 <b>${Program.Variable}</b><b>${Program.Variable}</b>
+##testcomment3
 <b>${dict.test}</b>
+#*
+testcomment4
+*#
 <b>${people.Count}</b>
 
 #foreach(${person} in ${people})
