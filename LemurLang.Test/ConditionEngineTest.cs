@@ -316,5 +316,22 @@ namespace LemurLang.Test
                 Assert.IsFalse(result);
             }
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConditionException))]
+        public void CompareBooleanGreaterThan()
+        {
+            //When > or < operators are used, nummeric values are required.
+            //Since these values are strings, this must result in an exception.
+            new ComparisonConditionElement(null, "true", ">", "false").Evaluate(x => x);
+        }
+
+        [TestMethod]
+        public void CompareBooleanToInt()
+        {
+            //Since the language is loosely typed, this will be compared as strings.
+            bool result = new ComparisonConditionElement(null, "true", "==", "1").Evaluate(x => x);
+            Assert.IsFalse(result);
+        }
     }
 }
