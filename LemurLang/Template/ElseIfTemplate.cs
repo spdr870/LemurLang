@@ -23,8 +23,11 @@ namespace LemurLang.Templates
             consumer.Append(nextChar);
             int stackCount = 1;
             index++;
-            while (stackCount > 0 && index + 1 < template.Length)
+            while (stackCount > 0)
             {
+                if (index + 1 >= template.Length)
+                    throw new ParseException("Unexpected end of template");
+                
                 nextChar = template[index + 1];
                 if (nextChar == '(')
                     stackCount++;
@@ -38,6 +41,9 @@ namespace LemurLang.Templates
             }
             index++;
 
+            if (index >= template.Length)
+                throw new ParseException("Unexpected end of template");
+
             if (stackCount > 0)
                 throw new ParseException("More open parentheses than closing.");
             else if (template[index] == ')')
@@ -50,10 +56,7 @@ namespace LemurLang.Templates
 
         public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
-            foreach (ITemplate expression in this.Children)
-            {
-                expression.Evaluate(evaluationContext, write);
-            }
+            throw new InvalidOperationException("ElseIf cannot evaluate its children.");
         }
     }
 }

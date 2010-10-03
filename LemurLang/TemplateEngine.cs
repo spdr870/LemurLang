@@ -175,9 +175,13 @@ namespace LemurLang
                             currentItem = result.CurrentTemplate;
                             index = result.Index;
                         }
-                        catch (Exception ex)
+                        catch (ParseException ex)
                         {
                             throw new ParseException("Error occurred while parsing. Line number: " + GetLineNumberFromIndex(template, index), ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new UnhandledParseException("Unhandled Error occurred while parsing. Line number: " + GetLineNumberFromIndex(template, index), ex);
                         }
 
                         //eat whitespace
@@ -201,14 +205,17 @@ namespace LemurLang
                     
                     if (index + 1 < template.Length)
                     {
-                        char nextChar = template[index + 1];
                         index++;
+                        char nextChar = template[index];
                         if (nextChar == '{')
                         {
                             StringBuilder consumer = new StringBuilder();
                             
                             while (nextChar != '}')
                             {
+                                if (index + 1 >= template.Length)
+                                    throw new ParseException("Unexpected end of template");
+                                
                                 nextChar = template[index + 1];
                                 if (nextChar == '\r' || nextChar == '\n')
                                     throw new ParseException(string.Format("Did not expect {0} here. Line: {1}", Regex.Escape(nextChar.ToString()), GetLineNumberFromIndex(template, index)));
