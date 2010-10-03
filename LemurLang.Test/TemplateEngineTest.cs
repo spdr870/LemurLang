@@ -324,7 +324,31 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ParseException))]
-        public void InvalidIfPrintStatement()
+        public void InvalidIfMultipleParentheses()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate("#if(((true))#end");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidIfMultipleClosingParentheses()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate("#if((true)))#end");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidElseIfMultipleParentheses()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate("#elseif(((true))#end");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidPrintStatement()
         {
             TemplateEngine engine = new TemplateEngine();
             RootTemplate templateItem = engine.BuildTemplate("test${asddsa\na}");
