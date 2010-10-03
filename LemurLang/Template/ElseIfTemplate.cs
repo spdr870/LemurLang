@@ -50,10 +50,7 @@ namespace LemurLang.Templates
 
         public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
-            foreach (ITemplate expression in this.Children)
-            {
-                expression.Evaluate(evaluationContext, write);
-            }
+            throw new InvalidOperationException("ElseIf cannot evaluate its children.");
         }
     }
 }
