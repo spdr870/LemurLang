@@ -23,7 +23,7 @@ namespace LemurLang.Templates
             consumer.Append(nextChar);
             int stackCount = 1;
             index++;
-            while (stackCount > 0)
+            while (stackCount > 0 && index + 1 < template.Length)
             {
                 nextChar = template[index + 1];
                 if (nextChar == '(')
@@ -37,6 +37,11 @@ namespace LemurLang.Templates
                 index++;
             }
             index++;
+
+            if (stackCount > 0)
+                throw new ParseException("More open parentheses than closing.");
+            else if (template[index] == ')')
+                throw new ParseException("More closing parentheses than opening.");
 
             this.Arguments = consumer.ToString();
 
