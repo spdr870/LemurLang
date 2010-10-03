@@ -39,7 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConditionEngine.cs" />
     <Compile Include="Conditions\ComparisonConditionElement.cs" />
     <Compile Include="Conditions\ConditionElement.cs" />
     <Compile Include="Conditions\ConditionElementList.cs" />

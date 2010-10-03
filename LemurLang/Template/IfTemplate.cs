@@ -3,6 +3,7 @@ using System.Text;
 using LemurLang.Conditions;
 using LemurLang.Exceptions;
 using LemurLang.Interfaces;
+using LemurLang.Expression;
 
 namespace LemurLang.Templates
 {
@@ -60,11 +61,10 @@ namespace LemurLang.Templates
 
         protected virtual bool GetConditionEvaluation(EvaluationContext evaluationContext)
         {
-            ConditionEngine conditionHandler = new ConditionEngine();
-            ConditionElementList conditions = conditionHandler.Build(this.Arguments);
+            ReversePolishNotation rpn = new ReversePolishNotation(this.Arguments);
+            object value = rpn.Evaluate(evaluationContext.GetValue);
 
-            bool result = conditions.Evaluate(evaluationContext.GetValue);
-            return result;
+            return Convert.ToBoolean(value);
         }
 
         public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
