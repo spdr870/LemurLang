@@ -224,6 +224,23 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
+        public void MathIf()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate(@"
+            #if((2 * 6 > 2 + 5) && (3 * 3 == 9))
+                indeed
+            #end");
+
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>()
+            {
+            }, null);
+
+            string result = templateItem.Evaluate(context);
+            Assert.IsTrue(result.Contains("indeed"));
+        }
+
+        [TestMethod]
         public void LongElseElseIf()
         {
             TemplateEngine engine = new TemplateEngine();
