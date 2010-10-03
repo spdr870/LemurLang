@@ -126,5 +126,22 @@ namespace LemurLang.Test
             }
         }
 
+        private class Customer
+        {
+            public string Name { get; set; }
+            public Customer Friend { get; set; }
+            public int Age { get; set; }
+        }
+
+        [TestMethod]
+        public void ContextTest()
+        {
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
+                {"customer", new Customer(){ Age=12, Name="Customer1"}}
+            }, null);
+
+            Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} == 12").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} + 8 == 20").Evaluate(context.GetValue));
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace LemurLang.Expression
             output = new Queue<ReversePolishNotationToken>();
             ops = new Stack<ReversePolishNotationToken>();
 
-            string sBuffer = Expression.ToLower();
+            string sBuffer = Expression;
             // Make sure all operators have spaces after and in front of them.
             sBuffer = Regex.Replace(sBuffer, @"(?<ops>([+\-*/^()]|==|!=|>=|>|<=|<|\|\||\&\&|!))", " ${ops} ");
             // trims up consecutive spaces and replace it with just one space
@@ -492,6 +492,14 @@ namespace LemurLang.Expression
             }
         }
 
+        private object Resolve(object input, Func<string, object> contextGetter)
+        {
+            Regex contextProperty = new Regex(@"^\$\{([a-zA-Z0-9.]+)\}$");
+
+            Match lhsMatch = contextProperty.Match(input.ToString());
+            return lhsMatch.Success ? contextGetter(lhsMatch.Groups[1].Value) : input;
+        }
+
         public object Evaluate(Func<string, object> contextGetter)
         {
             Parse(OriginalExpression, contextGetter);
@@ -521,8 +529,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = Convert.ToDecimal(result.Pop());
-                            operator1 = Convert.ToDecimal(result.Pop());
+                            operator2 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
+                            operator1 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 + operator2);
@@ -539,8 +547,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = Convert.ToDecimal(result.Pop());
-                            operator1 = Convert.ToDecimal(result.Pop());
+                            operator2 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
+                            operator1 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 - operator2);
@@ -557,8 +565,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = Convert.ToDecimal(result.Pop());
-                            operator1 = Convert.ToDecimal(result.Pop());
+                            operator2 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
+                            operator1 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 * operator2);
@@ -575,8 +583,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = Convert.ToDecimal(result.Pop());
-                            operator1 = Convert.ToDecimal(result.Pop());
+                            operator2 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
+                            operator1 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 / operator2);
@@ -593,8 +601,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = Convert.ToDecimal(result.Pop());
-                            operator1 = Convert.ToDecimal(result.Pop());
+                            operator2 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
+                            operator1 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push((Decimal)Math.Pow((double)operator1, (double)operator2));
@@ -611,7 +619,7 @@ namespace LemurLang.Expression
                         if (result.Count >= 1)
                         {
                             // So, pop the top n values from the stack.
-                            operator1 = Convert.ToDecimal(result.Pop());
+                            operator1 = Convert.ToDecimal(Resolve(result.Pop(), contextGetter));
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(-operator1);
@@ -629,7 +637,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(!Convert.ToBoolean(result.Pop()));
+                            result.Push(!Convert.ToBoolean(Resolve(result.Pop(), contextGetter)));
                         }
                         else
                         {
@@ -644,8 +652,8 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            bool left = Convert.ToBoolean(result.Pop());
-                            bool right = Convert.ToBoolean(result.Pop());
+                            bool left = Convert.ToBoolean(Resolve(result.Pop(), contextGetter));
+                            bool right = Convert.ToBoolean(Resolve(result.Pop(), contextGetter));
                             result.Push(left && right); //Pop them before this line or change is one of them is not popped
                         }
                         else
@@ -661,8 +669,8 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            bool left = Convert.ToBoolean(result.Pop());
-                            bool right = Convert.ToBoolean(result.Pop());
+                            bool left = Convert.ToBoolean(Resolve(result.Pop(), contextGetter));
+                            bool right = Convert.ToBoolean(Resolve(result.Pop(), contextGetter));
                             result.Push(left || right);//Pop them before this line or change is one of them is not popped
                         }
                         else
@@ -678,7 +686,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(result.Pop().ToString() == result.Pop().ToString());
+                            result.Push(Resolve(result.Pop(), contextGetter).ToString() == Resolve(result.Pop(), contextGetter).ToString());
                         }
                         else
                         {
@@ -693,7 +701,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(!(result.Pop().ToString() == result.Pop().ToString()));
+                            result.Push(!(Resolve(result.Pop(), contextGetter).ToString() == Resolve(result.Pop(), contextGetter).ToString()));
                         }
                         else
                         {
@@ -708,7 +716,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(result.Pop()) < Convert.ToDecimal(result.Pop()));
+                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) < Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
                         }
                         else
                         {
@@ -723,7 +731,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(result.Pop()) <= Convert.ToDecimal(result.Pop()));
+                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) <= Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
                         }
                         else
                         {
@@ -738,7 +746,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(result.Pop()) > Convert.ToDecimal(result.Pop()));
+                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) > Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
                         }
                         else
                         {
@@ -753,7 +761,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(result.Pop()) >= Convert.ToDecimal(result.Pop()));
+                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) >= Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
                         }
                         else
                         {
