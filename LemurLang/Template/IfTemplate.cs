@@ -38,8 +38,11 @@ namespace LemurLang.Templates
             consumer.Append(nextChar);
             int stackCount = 1;
             index++;
-            while (stackCount > 0 && index + 1 < template.Length)
+            while (stackCount > 0)
             {
+                if (index + 1 >= template.Length)
+                    throw new ParseException("Unexpected end of template");
+                
                 nextChar = template[index + 1];
                 if (nextChar == '(')
                     stackCount++;
@@ -52,6 +55,9 @@ namespace LemurLang.Templates
                 index++;
             }
             index++;
+
+            if (index >= template.Length)
+                throw new ParseException("Unexpected end of template");
 
             if (stackCount > 0)
                 throw new ParseException("More open parentheses than closing.");
@@ -74,20 +80,23 @@ namespace LemurLang.Templates
 
         public override void Evaluate(EvaluationContext evaluationContext, Action<string> write)
         {
+            //get result of if statement
             bool result = GetConditionEvaluation(evaluationContext);
 
+            //walk through children (could be TEXT, PRINT, IF, ELSEIF, ELSE, etc)
             foreach (ITemplate templateItem in this.Children)
             {
-                if (result && !(templateItem is ElseIfTemplate))
+                if (result && !(templateItem is ElseIfTemplate)) //if the current condition was valid
                 {
-                    templateItem.Evaluate(evaluationContext, write);
+                    templateItem.Evaluate(evaluationContext, write); //evaluate child
                 }
-                else if (result && templateItem is ElseIfTemplate)
+                else if (result && templateItem is ElseIfTemplate) //if the current condition was valid, but the current child is ELSE(IF)
                 {
-                    break;
+                    break;//stop executing children, all work is done
                 }
-                else if (!result && templateItem is ElseIfTemplate)
+                else if (!result && templateItem is ElseIfTemplate) //the condition wasn't valid, but ELSE(IF) was found and that one might have a valid condition
                 {
+                    //get result of else(if) statement. Else is always true
                     result = ((ElseIfTemplate)templateItem).GetConditionEvaluation(evaluationContext);
                 }
             }

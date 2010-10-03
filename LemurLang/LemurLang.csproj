@@ -47,6 +47,7 @@
     <Compile Include="Conditions\StringConditionElement.cs" />
     <Compile Include="EvaluationContext.cs" />
     <Compile Include="Exceptions\ConditionException.cs" />
+    <Compile Include="Exceptions\UnhandledParseException.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
     <Compile Include="Exceptions\EvaluationException.cs" />
     <Compile Include="Expression\ReversePolishNotation.cs" />

@@ -27,6 +27,9 @@ namespace LemurLang.Templates
             index++;
             while (nextChar != ')')
             {
+                if (index + 1 >= template.Length)
+                    throw new ParseException("Unexpected end of template");
+                
                 nextChar = template[index + 1];
                 if (nextChar == '\r' || nextChar == '\n')
                     throw new ParseException("Expected ')' but encountered newline after foreach");
@@ -35,6 +38,9 @@ namespace LemurLang.Templates
                 index++;
             }
             index++;
+
+            if (index >= template.Length)
+                throw new ParseException("Unexpected end of template");
 
             consumer.RemoveLastCharacter();
             

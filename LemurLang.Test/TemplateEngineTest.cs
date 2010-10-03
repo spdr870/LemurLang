@@ -300,10 +300,18 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ParseException))]
-        public void InvalidForeachEnd()
+        public void InvalidForeachEndBecauseOfNewline()
         {
             TemplateEngine engine = new TemplateEngine();
             RootTemplate templateItem = engine.BuildTemplate("#foreach(${person} in ${persons}\n)${person}#end");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidForeachEndBecauseOfTemplateEnd()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate("#foreach(${person} in ${persons}");
         }
 
         [TestMethod]
@@ -316,10 +324,18 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ParseException))]
-        public void InvalidIfEnd()
+        public void InvalidIfBecauseOfNewline()
         {
             TemplateEngine engine = new TemplateEngine();
             RootTemplate templateItem = engine.BuildTemplate("#if(true\r) #end");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidIfBecauseOfTemplateEnd()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate("#if(true");
         }
 
         [TestMethod]
@@ -348,10 +364,18 @@ namespace LemurLang.Test
 
         [TestMethod]
         [ExpectedException(typeof(ParseException))]
-        public void InvalidPrintStatement()
+        public void InvalidPrintStatementBecauseOfNewline()
         {
             TemplateEngine engine = new TemplateEngine();
             RootTemplate templateItem = engine.BuildTemplate("test${asddsa\na}");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidPrintStatementBecauseOfTemplateEnd()
+        {
+            TemplateEngine engine = new TemplateEngine();
+            RootTemplate templateItem = engine.BuildTemplate("test${asddsa");
         }
     }
 }
