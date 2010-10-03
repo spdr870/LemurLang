@@ -5,6 +5,7 @@ using System.Text;
 
 namespace LemurLang.Expression
 {
+
     public enum TokenType
     {
         None,
@@ -16,7 +17,19 @@ namespace LemurLang.Expression
         Divide,
         Exponent,
         UnaryMinus,
+        
         LeftParenthesis,
-        RightParenthesis
+        RightParenthesis,
+
+        Equals,              //==
+        NotEquals,           //!=
+        Not,                 //!
+        SmallerThan,         //<
+        GreaterThan,         //>
+        SmallerThanOrEquals, //<=
+        GreaterThanOrEquals, //>=
+
+        LogicalOr,           //||
+        LogicalAnd,          //&&
     }
 }

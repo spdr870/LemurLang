@@ -28,13 +28,8 @@ namespace LemurLang.Expression
             ops = new Stack<ReversePolishNotationToken>();
 
             string sBuffer = Expression.ToLower();
-            // captures numbers. Anything like 11 or 22.34 is captured
-            sBuffer = Regex.Replace(sBuffer, @"(?<number>\d+(\.\d+)?)", " ${number} ");
-            // captures these symbols: + - * / ^ ( )
-            sBuffer = Regex.Replace(sBuffer, @"(?<ops>[+\-*/^()])", " ${ops} ");
-            // captures alphabets. Currently captures
-            // the 3 basic trigonometry functions, sine, cosine and tangent
-            sBuffer = Regex.Replace(sBuffer, "(?<alpha>(sin|cos|tan))", " ${alpha} ");
+            // Make sure all operators have spaces after and in front of them.
+            sBuffer = Regex.Replace(sBuffer, @"(?<ops>([+\-*/^()]|==|!=|>=|>|<=|<|\|\||\&\&|!))", " ${ops} ");
             // trims up consecutive spaces and replace it with just one space
             sBuffer = Regex.Replace(sBuffer, @"\s+", " ").Trim();
 
@@ -56,7 +51,6 @@ namespace LemurLang.Expression
             // tokenise it!
             string[] saParsed = sBuffer.Split(" ".ToCharArray());
             int i = 0;
-            Decimal tokenvalue;
             ReversePolishNotationToken token, opstoken;
             for (i = 0; i < saParsed.Length; ++i)
             {
@@ -64,19 +58,24 @@ namespace LemurLang.Expression
                 token.TokenValue = saParsed[i];
                 token.TokenValueType = TokenType.None;
 
-                try
+                Decimal tokenvalue;
+                if (Decimal.TryParse(saParsed[i], out tokenvalue))
                 {
-                    tokenvalue = Decimal.Parse(saParsed[i]);
                     token.TokenValueType = TokenType.Number;
                     // If the token is a number, then add it to the output queue.
                     output.Enqueue(token);
                 }
-                catch
+                else
                 {
                     switch (saParsed[i])
                     {
-                        case "+":
-                            token.TokenValueType = TokenType.Plus;
+                        default:
+                            token.TokenValueType = TokenType.Number;
+                            // If the token is a number, then add it to the output queue.
+                            output.Enqueue(token);
+                            break;
+                        case "||":
+                            token.TokenValueType = TokenType.LogicalOr;
                             if (ops.Count > 0)
                             {
                                 opstoken = ops.Peek();
@@ -92,6 +91,220 @@ namespace LemurLang.Expression
                                     else
                                     {
                                         break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "!":
+                            token.TokenValueType = TokenType.Not;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "&&":
+                            token.TokenValueType = TokenType.LogicalAnd;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "==":
+                            token.TokenValueType = TokenType.Equals;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "!=":
+                            token.TokenValueType = TokenType.NotEquals;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case ">":
+                            token.TokenValueType = TokenType.GreaterThan;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case ">=":
+                            token.TokenValueType = TokenType.GreaterThanOrEquals;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "<":
+                            token.TokenValueType = TokenType.SmallerThan;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "<=":
+                            token.TokenValueType = TokenType.SmallerThanOrEquals;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    // pop o2 off the stack, onto the output queue;
+                                    output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            // push o1 onto the operator stack.
+                            ops.Push(token);
+                            break;
+                        case "+":
+                            token.TokenValueType = TokenType.Plus;
+                            if (ops.Count > 0)
+                            {
+                                opstoken = ops.Peek();
+                                // while there is an operator, o2, at the top of the stack
+                                while (IsOperatorToken(opstoken.TokenValueType))
+                                {
+                                    if (opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        // pop o2 off the stack, onto the output queue;
+                                        output.Enqueue(ops.Pop());
+                                        if (ops.Count > 0)
+                                        {
+                                            opstoken = ops.Peek();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -106,15 +319,22 @@ namespace LemurLang.Expression
                                 // while there is an operator, o2, at the top of the stack
                                 while (IsOperatorToken(opstoken.TokenValueType))
                                 {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
+                                    if (opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
                                     {
-                                        opstoken = ops.Peek();
+                                        break;
                                     }
                                     else
                                     {
-                                        break;
+                                        // pop o2 off the stack, onto the output queue;
+                                        output.Enqueue(ops.Pop());
+                                        if (ops.Count > 0)
+                                        {
+                                            opstoken = ops.Peek();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -129,7 +349,7 @@ namespace LemurLang.Expression
                                 // while there is an operator, o2, at the top of the stack
                                 while (IsOperatorToken(opstoken.TokenValueType))
                                 {
-                                    if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus)
+                                    if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus || opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
                                     {
                                         break;
                                     }
@@ -163,7 +383,7 @@ namespace LemurLang.Expression
                                 // while there is an operator, o2, at the top of the stack
                                 while (IsOperatorToken(opstoken.TokenValueType))
                                 {
-                                    if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus)
+                                    if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
                                     {
                                         break;
                                     }
@@ -272,11 +492,11 @@ namespace LemurLang.Expression
             }
         }
 
-        public Decimal Evaluate(Func<string, object> contextGetter)
+        public object Evaluate(Func<string, object> contextGetter)
         {
             Parse(OriginalExpression, contextGetter);
 
-            Stack<Decimal> result = new Stack<Decimal>();
+            Stack result = new Stack();
             Decimal operator1 = 0.0m;
             Decimal operator2 = 0.0m;
             // While there are input tokens left
@@ -288,7 +508,7 @@ namespace LemurLang.Expression
                     case TokenType.Number:
                         // If the token is a value
                         // Push it onto the stack.
-                        result.Push(Decimal.Parse(token.TokenValue));
+                        result.Push(token.TokenValue);
                         break;
                     case TokenType.Constant:
                         // If the token is a value
@@ -301,8 +521,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = result.Pop();
-                            operator1 = result.Pop();
+                            operator2 = Convert.ToDecimal(result.Pop());
+                            operator1 = Convert.ToDecimal(result.Pop());
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 + operator2);
@@ -319,8 +539,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = result.Pop();
-                            operator1 = result.Pop();
+                            operator2 = Convert.ToDecimal(result.Pop());
+                            operator1 = Convert.ToDecimal(result.Pop());
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 - operator2);
@@ -337,8 +557,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = result.Pop();
-                            operator1 = result.Pop();
+                            operator2 = Convert.ToDecimal(result.Pop());
+                            operator1 = Convert.ToDecimal(result.Pop());
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 * operator2);
@@ -355,8 +575,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = result.Pop();
-                            operator1 = result.Pop();
+                            operator2 = Convert.ToDecimal(result.Pop());
+                            operator1 = Convert.ToDecimal(result.Pop());
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(operator1 / operator2);
@@ -373,8 +593,8 @@ namespace LemurLang.Expression
                         if (result.Count >= 2)
                         {
                             // So, pop the top n values from the stack.
-                            operator2 = result.Pop();
-                            operator1 = result.Pop();
+                            operator2 = Convert.ToDecimal(result.Pop());
+                            operator1 = Convert.ToDecimal(result.Pop());
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push((Decimal)Math.Pow((double)operator1, (double)operator2));
@@ -391,10 +611,149 @@ namespace LemurLang.Expression
                         if (result.Count >= 1)
                         {
                             // So, pop the top n values from the stack.
-                            operator1 = result.Pop();
+                            operator1 = Convert.ToDecimal(result.Pop());
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
                             result.Push(-operator1);
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.Not:
+                        // NOTE: n is 1 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 1)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(!Convert.ToBoolean(result.Pop()));
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.LogicalAnd:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            bool left = Convert.ToBoolean(result.Pop());
+                            bool right = Convert.ToBoolean(result.Pop());
+                            result.Push(left && right); //Pop them before this line or change is one of them is not popped
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.LogicalOr:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            bool left = Convert.ToBoolean(result.Pop());
+                            bool right = Convert.ToBoolean(result.Pop());
+                            result.Push(left || right);//Pop them before this line or change is one of them is not popped
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.Equals:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(result.Pop().ToString() == result.Pop().ToString());
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.NotEquals:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(!(result.Pop().ToString() == result.Pop().ToString()));
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.GreaterThan:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(Convert.ToDecimal(result.Pop()) < Convert.ToDecimal(result.Pop()));
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.GreaterThanOrEquals:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(Convert.ToDecimal(result.Pop()) <= Convert.ToDecimal(result.Pop()));
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.SmallerThan:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(Convert.ToDecimal(result.Pop()) > Convert.ToDecimal(result.Pop()));
+                        }
+                        else
+                        {
+                            // (Error) The user has not input sufficient values in the expression.
+                            throw new Exception("Evaluation error!");
+                        }
+                        break;
+                    case TokenType.SmallerThanOrEquals:
+                        // NOTE: n is 2 in this case
+                        // If there are fewer than n values on the stack
+                        if (result.Count >= 2)
+                        {
+                            // Evaluate the function, with the values as arguments.
+                            // Push the returned results, if any, back onto the stack.
+                            result.Push(Convert.ToDecimal(result.Pop()) >= Convert.ToDecimal(result.Pop()));
                         }
                         else
                         {
@@ -430,6 +789,15 @@ namespace LemurLang.Expression
                 case TokenType.Divide:
                 case TokenType.Exponent:
                 case TokenType.UnaryMinus:
+                case TokenType.Equals:
+                case TokenType.NotEquals:
+                case TokenType.Not:
+                case TokenType.GreaterThan:
+                case TokenType.GreaterThanOrEquals:
+                case TokenType.SmallerThan:
+                case TokenType.SmallerThanOrEquals:
+                case TokenType.LogicalOr:
+                case TokenType.LogicalAnd: 
                     result = true;
                     break;
                 default:
