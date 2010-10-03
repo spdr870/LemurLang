@@ -142,6 +142,8 @@ namespace LemurLang.Test
 
             Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} == 12").Evaluate(context.GetValue));
             Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} + 8 == 20").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} - 2 == 10").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("-${customer.Age} == -12").Evaluate(context.GetValue));
         }
     }
 }

@@ -27,60 +27,252 @@ namespace LemurLang.Expression
             output = new Queue<ReversePolishNotationToken>();
             ops = new Stack<ReversePolishNotationToken>();
 
-            string sBuffer = Expression;
-            // Make sure all operators have spaces after and in front of them.
-            sBuffer = Regex.Replace(sBuffer, @"(?<ops>([+\-*/^()]|==|!=|>=|>|<=|<|\|\||\&\&|!))", " ${ops} ");
-            // trims up consecutive spaces and replace it with just one space
-            sBuffer = Regex.Replace(sBuffer, @"\s+", " ").Trim();
-
-            // The following chunk captures unary minus operations.
-            // 1) We replace every minus sign with the string "MINUS".
-            // 2) Then if we find a "MINUS" with a number or constant in front,
-            //    then it's a normal minus operation.
-            // 3) Otherwise, it's a unary minus operation.
-
-            // Step 1.
-            sBuffer = Regex.Replace(sBuffer, "-", "MINUS");
-            // Step 2. Looking for generic number \d+(\.\d+)?
-            sBuffer = Regex.Replace(sBuffer, @"(?<number>((\d+(\.\d+)?)))\s+MINUS", "${number} -");
-            // Step 3. Use the tilde ~ as the unary minus operator
-            sBuffer = Regex.Replace(sBuffer, "MINUS", "~");
-
-            TransitionExpression = sBuffer;
+            TransitionExpression = Expression;
 
             // tokenise it!
-            string[] saParsed = sBuffer.Split(" ".ToCharArray());
+            string[] saParsed = Regex.Split(Expression, @"([+\-*/^()]|==|!=|>=|>|<=|<|\|\||\&\&|!)", RegexOptions.Multiline);
+
             int i = 0;
-            ReversePolishNotationToken token, opstoken;
+            ReversePolishNotationToken opstoken;
+            ReversePolishNotationToken lastToken;
+            lastToken.TokenValueType = TokenType.None;
+
             for (i = 0; i < saParsed.Length; ++i)
             {
-                token = new ReversePolishNotationToken();
-                token.TokenValue = saParsed[i];
+                if (string.IsNullOrEmpty(saParsed[i].Trim()))
+                    continue;
+
+                ReversePolishNotationToken token = new ReversePolishNotationToken();
+                token.TokenValue = saParsed[i].Trim();
                 token.TokenValueType = TokenType.None;
 
-                Decimal tokenvalue;
-                if (Decimal.TryParse(saParsed[i], out tokenvalue))
+                switch (saParsed[i].Trim())
                 {
-                    token.TokenValueType = TokenType.Number;
-                    // If the token is a number, then add it to the output queue.
-                    output.Enqueue(token);
-                }
-                else
-                {
-                    switch (saParsed[i])
-                    {
-                        default:
-                            token.TokenValueType = TokenType.Number;
-                            // If the token is a number, then add it to the output queue.
-                            output.Enqueue(token);
-                            break;
-                        case "||":
-                            token.TokenValueType = TokenType.LogicalOr;
-                            if (ops.Count > 0)
+                    default:
+                        token.TokenValueType = TokenType.Number;
+                        // If the token is a number, then add it to the output queue.
+                        output.Enqueue(token);
+                        break;
+                    case "||":
+                        token.TokenValueType = TokenType.LogicalOr;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
                             {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "!":
+                        token.TokenValueType = TokenType.Not;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "&&":
+                        token.TokenValueType = TokenType.LogicalAnd;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "==":
+                        token.TokenValueType = TokenType.Equals;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "!=":
+                        token.TokenValueType = TokenType.NotEquals;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case ">":
+                        token.TokenValueType = TokenType.GreaterThan;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case ">=":
+                        token.TokenValueType = TokenType.GreaterThanOrEquals;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "<":
+                        token.TokenValueType = TokenType.SmallerThan;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "<=":
+                        token.TokenValueType = TokenType.SmallerThanOrEquals;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                // pop o2 off the stack, onto the output queue;
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "+":
+                        token.TokenValueType = TokenType.Plus;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
+                            {
+                                if (opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
+                                {
+                                    break;
+                                }
+                                else
                                 {
                                     // pop o2 off the stack, onto the output queue;
                                     output.Enqueue(ops.Pop());
@@ -94,224 +286,19 @@ namespace LemurLang.Expression
                                     }
                                 }
                             }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "-":
+                        if (lastToken.TokenValueType == TokenType.None || IsOperatorToken(lastToken.TokenValueType))
+                        {
+                            token.TokenValueType = TokenType.UnaryMinus;
                             // push o1 onto the operator stack.
                             ops.Push(token);
                             break;
-                        case "!":
-                            token.TokenValueType = TokenType.Not;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "&&":
-                            token.TokenValueType = TokenType.LogicalAnd;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "==":
-                            token.TokenValueType = TokenType.Equals;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "!=":
-                            token.TokenValueType = TokenType.NotEquals;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case ">":
-                            token.TokenValueType = TokenType.GreaterThan;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case ">=":
-                            token.TokenValueType = TokenType.GreaterThanOrEquals;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "<":
-                            token.TokenValueType = TokenType.SmallerThan;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "<=":
-                            token.TokenValueType = TokenType.SmallerThanOrEquals;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    // pop o2 off the stack, onto the output queue;
-                                    output.Enqueue(ops.Pop());
-                                    if (ops.Count > 0)
-                                    {
-                                        opstoken = ops.Peek();
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "+":
-                            token.TokenValueType = TokenType.Plus;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
-                                {
-                                    if (opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        // pop o2 off the stack, onto the output queue;
-                                        output.Enqueue(ops.Pop());
-                                        if (ops.Count > 0)
-                                        {
-                                            opstoken = ops.Peek();
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "-":
+                        } else
+                        {
                             token.TokenValueType = TokenType.Minus;
                             if (ops.Count > 0)
                             {
@@ -341,98 +328,26 @@ namespace LemurLang.Expression
                             // push o1 onto the operator stack.
                             ops.Push(token);
                             break;
-                        case "*":
-                            token.TokenValueType = TokenType.Multiply;
-                            if (ops.Count > 0)
+                        }
+                    case "*":
+                        token.TokenValueType = TokenType.Multiply;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
                             {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
+                                if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus || opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
                                 {
-                                    if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus || opstoken.TokenValueType == TokenType.Equals || opstoken.TokenValueType == TokenType.NotEquals || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        // Once we're in here, the following algorithm condition is satisfied.
-                                        // o1 is associative or left-associative and its precedence is less than (lower precedence) or equal to that of o2, or
-                                        // o1 is right-associative and its precedence is less than (lower precedence) that of o2,
-
-                                        // pop o2 off the stack, onto the output queue;
-                                        output.Enqueue(ops.Pop());
-                                        if (ops.Count > 0)
-                                        {
-                                            opstoken = ops.Peek();
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
+                                    break;
                                 }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "/":
-                            token.TokenValueType = TokenType.Divide;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // while there is an operator, o2, at the top of the stack
-                                while (IsOperatorToken(opstoken.TokenValueType))
+                                else
                                 {
-                                    if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        // Once we're in here, the following algorithm condition is satisfied.
-                                        // o1 is associative or left-associative and its precedence is less than (lower precedence) or equal to that of o2, or
-                                        // o1 is right-associative and its precedence is less than (lower precedence) that of o2,
+                                    // Once we're in here, the following algorithm condition is satisfied.
+                                    // o1 is associative or left-associative and its precedence is less than (lower precedence) or equal to that of o2, or
+                                    // o1 is right-associative and its precedence is less than (lower precedence) that of o2,
 
-                                        // pop o2 off the stack, onto the output queue;
-                                        output.Enqueue(ops.Pop());
-                                        if (ops.Count > 0)
-                                        {
-                                            opstoken = ops.Peek();
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "^":
-                            token.TokenValueType = TokenType.Exponent;
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "~":
-                            token.TokenValueType = TokenType.UnaryMinus;
-                            // push o1 onto the operator stack.
-                            ops.Push(token);
-                            break;
-                        case "(":
-                            token.TokenValueType = TokenType.LeftParenthesis;
-                            // If the token is a left parenthesis, then push it onto the stack.
-                            ops.Push(token);
-                            break;
-                        case ")":
-                            token.TokenValueType = TokenType.RightParenthesis;
-                            if (ops.Count > 0)
-                            {
-                                opstoken = ops.Peek();
-                                // Until the token at the top of the stack is a left parenthesis
-                                while (opstoken.TokenValueType != TokenType.LeftParenthesis)
-                                {
-                                    // pop operators off the stack onto the output queue
+                                    // pop o2 off the stack, onto the output queue;
                                     output.Enqueue(ops.Pop());
                                     if (ops.Count > 0)
                                     {
@@ -440,29 +355,98 @@ namespace LemurLang.Expression
                                     }
                                     else
                                     {
-                                        // If the stack runs out without finding a left parenthesis,
-                                        // then there are mismatched parentheses.
-                                        throw new Exception("Unbalanced parenthesis!");
+                                        break;
                                     }
-
                                 }
-                                // Pop the left parenthesis from the stack, but not onto the output queue.
-                                ops.Pop();
                             }
-
-                            if (ops.Count > 0)
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "/":
+                        token.TokenValueType = TokenType.Divide;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // while there is an operator, o2, at the top of the stack
+                            while (IsOperatorToken(opstoken.TokenValueType))
                             {
-                                opstoken = ops.Peek();
-                                // If the token at the top of the stack is a function token
-                                if (IsFunctionToken(opstoken.TokenValueType))
+                                if (opstoken.TokenValueType == TokenType.Plus || opstoken.TokenValueType == TokenType.Minus || opstoken.TokenValueType == TokenType.GreaterThan || opstoken.TokenValueType == TokenType.GreaterThanOrEquals || opstoken.TokenValueType == TokenType.SmallerThan || opstoken.TokenValueType == TokenType.SmallerThanOrEquals || opstoken.TokenValueType == TokenType.LogicalAnd || opstoken.TokenValueType == TokenType.LogicalOr || opstoken.TokenValueType == TokenType.Not)
                                 {
-                                    // pop it and onto the output queue.
+                                    break;
+                                }
+                                else
+                                {
+                                    // Once we're in here, the following algorithm condition is satisfied.
+                                    // o1 is associative or left-associative and its precedence is less than (lower precedence) or equal to that of o2, or
+                                    // o1 is right-associative and its precedence is less than (lower precedence) that of o2,
+
+                                    // pop o2 off the stack, onto the output queue;
                                     output.Enqueue(ops.Pop());
+                                    if (ops.Count > 0)
+                                    {
+                                        opstoken = ops.Peek();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
                             }
-                            break;
-                    }
+                        }
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "^":
+                        token.TokenValueType = TokenType.Exponent;
+                        // push o1 onto the operator stack.
+                        ops.Push(token);
+                        break;
+                    case "(":
+                        token.TokenValueType = TokenType.LeftParenthesis;
+                        // If the token is a left parenthesis, then push it onto the stack.
+                        ops.Push(token);
+                        break;
+                    case ")":
+                        token.TokenValueType = TokenType.RightParenthesis;
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // Until the token at the top of the stack is a left parenthesis
+                            while (opstoken.TokenValueType != TokenType.LeftParenthesis)
+                            {
+                                // pop operators off the stack onto the output queue
+                                output.Enqueue(ops.Pop());
+                                if (ops.Count > 0)
+                                {
+                                    opstoken = ops.Peek();
+                                }
+                                else
+                                {
+                                    // If the stack runs out without finding a left parenthesis,
+                                    // then there are mismatched parentheses.
+                                    throw new Exception("Unbalanced parenthesis!");
+                                }
+
+                            }
+                            // Pop the left parenthesis from the stack, but not onto the output queue.
+                            ops.Pop();
+                        }
+
+                        if (ops.Count > 0)
+                        {
+                            opstoken = ops.Peek();
+                            // If the token at the top of the stack is a function token
+                            if (IsFunctionToken(opstoken.TokenValueType))
+                            {
+                                // pop it and onto the output queue.
+                                output.Enqueue(ops.Pop());
+                            }
+                        }
+                        break;
                 }
+
+                lastToken = token;
             }
 
             // When there are no more tokens to read:
@@ -805,7 +789,7 @@ namespace LemurLang.Expression
                 case TokenType.SmallerThan:
                 case TokenType.SmallerThanOrEquals:
                 case TokenType.LogicalOr:
-                case TokenType.LogicalAnd: 
+                case TokenType.LogicalAnd:
                     result = true;
                     break;
                 default:
