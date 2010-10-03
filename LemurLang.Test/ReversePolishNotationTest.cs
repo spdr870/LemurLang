@@ -12,27 +12,58 @@ namespace LemurLang.Test
     [TestClass]
     public class ReversePolishNotationTests
     {
+        #region Basic math test
         [TestMethod]
-        public void ReversePolishNotationTest()
+        public void PowTest()
         {
-            using (new CultureContext(new CultureInfo("en-US")))
-            {
-                Assert.AreEqual(5m, new ReversePolishNotation("1 + 4").Evaluate(x => x));
-                Assert.AreEqual(9m, new ReversePolishNotation("1 + 4 * 2").Evaluate(x => x));
-                Assert.AreEqual(10m, new ReversePolishNotation("(1 + 4) * 2").Evaluate(x => x));
-
-                Assert.AreEqual(8m, new ReversePolishNotation("4 * 1 + 4").Evaluate(x => x));
-                Assert.AreEqual(10m, new ReversePolishNotation("1 + 4 * 2 + 1").Evaluate(x => x));
-                Assert.AreEqual(5m, new ReversePolishNotation("(1 + 4) * 2 / 2").Evaluate(x => x));
-
-                Assert.AreEqual(3m, new ReversePolishNotation("4 + -1").Evaluate(x => x));
-                Assert.AreEqual(-3m, new ReversePolishNotation("-4 + 1").Evaluate(x => x));
-
-                Assert.AreEqual(-4m, new ReversePolishNotation("-4").Evaluate(x => x));
-
-                Assert.AreEqual(4.4m, new ReversePolishNotation("1.1 * 4").Evaluate(x => x));
-            }
+            Assert.AreEqual(4m, new ReversePolishNotation("2^2").Evaluate(x => x));
         }
+
+        [TestMethod]
+        public void MultiplyTest()
+        {
+            Assert.AreEqual(4m, new ReversePolishNotation("2*2").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void UnaryMinusTest()
+        {
+            Assert.AreEqual(-4m, new ReversePolishNotation("-4").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void DoubleUnaryMinusTest()
+        {
+            Assert.AreEqual(4m, new ReversePolishNotation("--4").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void MinusTest()
+        {
+            Assert.AreEqual(4m, new ReversePolishNotation("8-4").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void PlusTest()
+        {
+            Assert.AreEqual(4m, new ReversePolishNotation("2+2").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void DevideTest()
+        {
+            Assert.AreEqual(4m, new ReversePolishNotation("8/2").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DivideByZeroException))]
+        public void DevideByZeroTest()
+        {
+            new ReversePolishNotation("8/0").Evaluate(x => x);
+        }
+        #endregion
+
+        #region Basic logical operators
 
         [TestMethod]
         public void EqualsTest()
@@ -66,6 +97,53 @@ namespace LemurLang.Test
         }
 
         [TestMethod]
+        public void LogicalAndOrTest()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                Assert.AreEqual(true, new ReversePolishNotation("true && true").Evaluate(x => x));
+                Assert.AreEqual(true, new ReversePolishNotation("true || false").Evaluate(x => x));
+            }
+        }
+
+        [TestMethod]
+        public void NotTest()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                Assert.AreEqual(true, new ReversePolishNotation("!false").Evaluate(x => x));
+                Assert.AreEqual(false, new ReversePolishNotation("!true").Evaluate(x => x));
+
+                Assert.AreEqual(false, new ReversePolishNotation("!(1 + 1 == 2)").Evaluate(x => x));
+            }
+        }
+
+        #endregion
+
+        #region Complex math
+        [TestMethod]
+        public void ReversePolishNotationTest()
+        {
+            using (new CultureContext(new CultureInfo("en-US")))
+            {
+                Assert.AreEqual(5m, new ReversePolishNotation("1 + 4").Evaluate(x => x));
+                Assert.AreEqual(9m, new ReversePolishNotation("1 + 4 * 2").Evaluate(x => x));
+                Assert.AreEqual(10m, new ReversePolishNotation("(1 + 4) * 2").Evaluate(x => x));
+
+                Assert.AreEqual(8m, new ReversePolishNotation("4 * 1 + 4").Evaluate(x => x));
+                Assert.AreEqual(10m, new ReversePolishNotation("1 + 4 * 2 + 1").Evaluate(x => x));
+                Assert.AreEqual(5m, new ReversePolishNotation("(1 + 4) * 2 / 2").Evaluate(x => x));
+
+                Assert.AreEqual(3m, new ReversePolishNotation("4 + -1").Evaluate(x => x));
+                Assert.AreEqual(-3m, new ReversePolishNotation("-4 + 1").Evaluate(x => x));
+
+                Assert.AreEqual(-4m, new ReversePolishNotation("-4").Evaluate(x => x));
+
+                Assert.AreEqual(4.4m, new ReversePolishNotation("1.1 * 4").Evaluate(x => x));
+            }
+        }
+
+        [TestMethod]
         public void MathExpressionTest()
         {
             using (new CultureContext(new CultureInfo("en-US")))
@@ -92,27 +170,9 @@ namespace LemurLang.Test
             }
         }
 
-        [TestMethod]
-        public void LogicalAndOrTest()
-        {
-            using (new CultureContext(new CultureInfo("en-US")))
-            {
-                Assert.AreEqual(true, new ReversePolishNotation("true && true").Evaluate(x => x));
-                Assert.AreEqual(true, new ReversePolishNotation("true || false").Evaluate(x => x));
-            }
-        }
+        #endregion
 
-        [TestMethod]
-        public void NotTest()
-        {
-            using (new CultureContext(new CultureInfo("en-US")))
-            {
-                Assert.AreEqual(true, new ReversePolishNotation("!false").Evaluate(x => x));
-                Assert.AreEqual(false, new ReversePolishNotation("!true").Evaluate(x => x));
-
-                Assert.AreEqual(false, new ReversePolishNotation("!(1 + 1 == 2)").Evaluate(x => x));
-            }
-        }
+        #region Integration tests
 
         [TestMethod]
         public void CompleteTest()
@@ -145,5 +205,7 @@ namespace LemurLang.Test
             Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} - 2 == 10").Evaluate(context.GetValue));
             Assert.AreEqual(true, new ReversePolishNotation("-${customer.Age} == -12").Evaluate(context.GetValue));
         }
+
+        #endregion
     }
 }
