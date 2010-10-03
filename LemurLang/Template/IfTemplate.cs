@@ -42,7 +42,7 @@ namespace LemurLang.Templates
             {
                 nextChar = template[index + 1];
                 if (nextChar == '(')
-                    stackCount--;
+                    stackCount++;
                 else if (nextChar == ')')
                     stackCount--;
                 else if (stackCount > 0 && (nextChar == '\r' || nextChar == '\n'))
