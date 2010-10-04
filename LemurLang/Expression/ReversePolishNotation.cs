@@ -722,7 +722,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) < Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
+                            result.Push(((IComparable)Resolve(result.Pop(), contextGetter)).CompareTo(Resolve(result.Pop(), contextGetter)) < 0);
                         }
                         else
                         {
@@ -737,7 +737,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) <= Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
+                            result.Push(((IComparable)Resolve(result.Pop(), contextGetter)).CompareTo(Resolve(result.Pop(), contextGetter)) <= 0);
                         }
                         else
                         {
@@ -752,7 +752,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) > Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
+                            result.Push(((IComparable)Resolve(result.Pop(), contextGetter)).CompareTo(Resolve(result.Pop(), contextGetter)) > 0);
                         }
                         else
                         {
@@ -767,7 +767,7 @@ namespace LemurLang.Expression
                         {
                             // Evaluate the function, with the values as arguments.
                             // Push the returned results, if any, back onto the stack.
-                            result.Push(Convert.ToDecimal(Resolve(result.Pop(), contextGetter)) >= Convert.ToDecimal(Resolve(result.Pop(), contextGetter)));
+                            result.Push(((IComparable)Resolve(result.Pop(), contextGetter)).CompareTo(Resolve(result.Pop(), contextGetter)) >= 0);
                         }
                         else
                         {
@@ -782,7 +782,7 @@ namespace LemurLang.Expression
             if (result.Count == 1)
             {
                 // That value is the result of the calculation.
-                return result.Pop();
+                return Resolve(result.Pop(), contextGetter);
             }
             else
             {

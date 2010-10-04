@@ -87,12 +87,13 @@ namespace LemurLang.Test
 
 
         [TestMethod]
-        [ExpectedException(typeof(FormatException))]
         public void NonNummericGreaterThanTest()
         {
             using (new CultureContext(new CultureInfo("en-US")))
             {
-                Assert.AreEqual(true, new ReversePolishNotation("true > true").Evaluate(x => x));
+                Assert.AreEqual(false, new ReversePolishNotation("a > a").Evaluate(x => x));
+                Assert.AreEqual(false, new ReversePolishNotation("a > b").Evaluate(x => x));
+                Assert.AreEqual(false, new ReversePolishNotation("(a > b) && (b < c)").Evaluate(x => x));
             }
         }
 
@@ -283,6 +284,33 @@ namespace LemurLang.Test
             }, null);
 
             Assert.AreEqual(true, new ReversePolishNotation("${customer.Name} == Empty").Evaluate(context.GetValue));
+        }
+
+        #endregion
+
+        #region Datetime tests
+
+        [TestMethod]
+        public void DateTimeTest()
+        {
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
+                {"date", new DateTime(2010,1,1)}
+            }, null);
+
+            Assert.AreEqual(new DateTime(2010, 1, 1), new ReversePolishNotation("${date}").Evaluate(context.GetValue));
+        }
+
+        [TestMethod]
+        public void DateTimeOperatorTest()
+        {
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
+                {"date1", new DateTime(2010,1,1)},
+                {"date2", new DateTime(2011,1,1)}
+            }, null);
+
+            Assert.AreEqual(true, new ReversePolishNotation("${date1}<${date2}").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("${date1}!=${date2}").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("${date2}>${date1}").Evaluate(context.GetValue));
         }
 
         #endregion
