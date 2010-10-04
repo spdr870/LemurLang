@@ -164,11 +164,28 @@ namespace LemurLang.Test
                 Assert.AreEqual(true, new ReversePolishNotation("5 * 5 == 5 + 5 + 5 + 5 + 5").Evaluate(x => x));
                 Assert.AreEqual(true, new ReversePolishNotation("5 * 5 * 2 == 5 * 5 + 5 * 5").Evaluate(x => x));
                 Assert.AreEqual(false, new ReversePolishNotation("5 * 5 * 2 > 5 * 5 + 5 * 5").Evaluate(x => x));
-
-                //Test without spaces
-                Assert.AreEqual(false, new ReversePolishNotation("5*5*2>5*5+5*5").Evaluate(x => x));
             }
         }
+
+        [TestMethod]
+        public void WhitespaceTest()
+        {
+            //Test without spaces
+            Assert.AreEqual(false, new ReversePolishNotation("5*5*2>5*5+5*5").Evaluate(x => x));
+            //Test with many spaces
+            Assert.AreEqual(false, new ReversePolishNotation("5      *5        * 2 >        5  *  5   + 5  *  5").Evaluate(x => x));
+            //Test with newlines
+            Assert.AreEqual(false, new ReversePolishNotation("5\n\n*\n5\n*\n\n\n\n2>\n\n5\n*\n5\n\n\n\n+5*5").Evaluate(x => x));
+            //Test with tabs
+            Assert.AreEqual(false, new ReversePolishNotation("5\t*\t5\t*\t2\t>\t5\t\t\t\t*5\t\t\t+5*5").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void BigNumberTest()
+        {
+            Assert.AreEqual(5000000000000m, new ReversePolishNotation("5000000000*1000").Evaluate(x => x));
+        }
+
 
         #endregion
 
@@ -204,6 +221,68 @@ namespace LemurLang.Test
             Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} + 8 == 20").Evaluate(context.GetValue));
             Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} - 2 == 10").Evaluate(context.GetValue));
             Assert.AreEqual(true, new ReversePolishNotation("-${customer.Age} == -12").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("${customer.Age} + ${customer.Age} == ${customer.Age} * 2").Evaluate(context.GetValue));
+        }
+
+        [TestMethod]
+        public void NoContextTest()
+        {
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
+                {"customer", new Customer(){ Age=12, Name="Customer1"}}
+            }, null);
+
+            Assert.AreEqual(true, new ReversePolishNotation("${customer.Age != 12").Evaluate(context.GetValue));
+            Assert.AreEqual("${customer.Age", new ReversePolishNotation("${customer.Age").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("{customer.Age} != 12").Evaluate(context.GetValue));
+            Assert.AreEqual("{customer.Age", new ReversePolishNotation("{customer.Age").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("$customer.Age} != 12").Evaluate(context.GetValue));
+            Assert.AreEqual("$customer.Age}", new ReversePolishNotation("$customer.Age}").Evaluate(context.GetValue));
+            Assert.AreEqual(true, new ReversePolishNotation("customer.Age != 12").Evaluate(context.GetValue));
+            Assert.AreEqual("customer.Age", new ReversePolishNotation("customer.Age").Evaluate(context.GetValue));
+        }
+
+        #endregion
+        
+        #region Constant tests (empty)
+
+        [TestMethod]
+        public void CompareToEmptyTest()
+        {
+            Assert.AreEqual(true, new ReversePolishNotation("Empty == Empty").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void EmptyCaseSensitiveTest()
+        {
+            //Only "Empty" and "empty" are supported. 
+            Assert.AreEqual(true, new ReversePolishNotation("Empty == empty").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void CompareEmptyToIntegerTest()
+        {
+            Assert.AreEqual(true, new ReversePolishNotation("Empty != 1").Evaluate(x => x));
+            Assert.AreEqual(true, new ReversePolishNotation("Empty != 0").Evaluate(x => x));
+        }
+
+        [TestMethod]
+        public void CompareEmptyToContextTest()
+        {
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
+                {"customer", null}
+            }, null);
+
+            Assert.AreEqual(true, new ReversePolishNotation("${customer} == Empty").Evaluate(context.GetValue));
+        }
+
+        [TestMethod]
+        public void CompareEmptyToEmptyStringTest()
+        {
+            EvaluationContext context = new EvaluationContext(new Dictionary<string, object>() {
+                {"customer", new Customer(){ Name=""}}
+            }, null);
+
+            Assert.AreEqual(true, new ReversePolishNotation("${customer.Name} == Empty").Evaluate(context.GetValue));
         }
 
         #endregion

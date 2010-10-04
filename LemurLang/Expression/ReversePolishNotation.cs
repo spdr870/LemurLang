@@ -30,7 +30,7 @@ namespace LemurLang.Expression
             TransitionExpression = Expression;
 
             // tokenise it!
-            string[] saParsed = Regex.Split(Expression, @"([+\-*/^()]|==|!=|>=|>|<=|<|\|\||\&\&|!)", RegexOptions.Multiline);
+            string[] saParsed = Regex.Split(Expression, @"([+\-*/^()]|==|!=|>=|>|<=|<|\|\||\&\&|!|Empty|empty)", RegexOptions.Multiline);
 
             int i = 0;
             ReversePolishNotationToken opstoken;
@@ -50,6 +50,12 @@ namespace LemurLang.Expression
                 {
                     default:
                         token.TokenValueType = TokenType.Number;
+                        // If the token is a number, then add it to the output queue.
+                        output.Enqueue(token);
+                        break;
+                    case "Empty":
+                    case "empty":
+                        token.TokenValueType = TokenType.Constant;
                         // If the token is a number, then add it to the output queue.
                         output.Enqueue(token);
                         break;
@@ -478,10 +484,26 @@ namespace LemurLang.Expression
 
         private object Resolve(object input, Func<string, object> contextGetter)
         {
+            if (input == null || string.IsNullOrEmpty(input.ToString()))
+                return "";
+
             Regex contextProperty = new Regex(@"^\$\{([a-zA-Z0-9.]+)\}$");
 
             Match lhsMatch = contextProperty.Match(input.ToString());
-            return lhsMatch.Success ? contextGetter(lhsMatch.Groups[1].Value) : input;
+            if (lhsMatch.Success)
+            {
+                object resolvedInput = contextGetter(lhsMatch.Groups[1].Value);
+                return resolvedInput == null ? "" : resolvedInput;
+            }
+            return input;
+        }
+
+        private object GetConstant(string input)
+        {
+            if (input.Equals("Empty", StringComparison.InvariantCultureIgnoreCase))
+                return null;
+
+            return input;
         }
 
         public object Evaluate(Func<string, object> contextGetter)
@@ -503,9 +525,9 @@ namespace LemurLang.Expression
                         result.Push(token.TokenValue);
                         break;
                     case TokenType.Constant:
-                        // If the token is a value
+                        // If the token is a constant
                         // Push it onto the stack.
-                        result.Push(Convert.ToDecimal(contextGetter(token.TokenValue)));
+                        result.Push(GetConstant(token.TokenValue));
                         break;
                     case TokenType.Plus:
                         // NOTE: n is 2 in this case
